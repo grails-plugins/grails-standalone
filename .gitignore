@@ -1,0 +1,6 @@
+stacktrace.log
+/target
+/docs
+/grails-standalone-*.zip
+/plugin.xml
+/.settings
