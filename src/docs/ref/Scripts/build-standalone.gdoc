@@ -1,0 +1,36 @@
+h1. build-standalone
+
+h2. Purpose
+
+Builds a runnable JAR file that contains the application and embeds Tomcat 7.
+
+h2. Description
+
+Builds a JAR file in the @target@ directory called @standalone.jar@. This can be run with @java -jar standalone.jar@ and can take optional arguments for the context path, port, etc.
+
+{warning}
+Since this script builds a war file if you don't specify an existing one, be sure to specify the correct environment to build with.
+{warning}
+
+Usage:
+{code:java}
+grails [environment] build-standalone [jarname] [--warfile]
+{code}
+
+Examples:
+{code:java}
+// build a JAR with the production environment settings and keeping the default filename
+grails prod build-standalone
+{code}
+
+{code:java}
+// build a JAR with the 'demo' environment settings in the current directory with a custom name
+grails -Dgrails.env=demo build-standalone our_cool_demo.jar
+{code}
+
+Required arguments: _none_ .
+
+Optional arguments:
+
+* @jarname@ - The directory and name of the JAR file being built (defaults to @target/standalone.jar@)
+* @warfile@ - The path to an existing war file to embed

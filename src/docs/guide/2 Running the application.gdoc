@@ -1,0 +1,55 @@
+h4. Building the jar
+
+The first step is to run the [build-standalone|Scripts] script, e.g.
+
+{code:java}
+grails prod build-standalone
+{code}
+
+or
+
+{code:java}
+grails -Dgrails.env=demo build-standalone our_cool_demo.jar
+{code}
+
+h4. Running the server
+
+As long as the target machine has Java 5 or higher available, all you need to do next is run
+
+{code:java}
+java -jar /path/to/jar_name.jar
+{code}
+
+There are a few arguments you can pass to customize how the application runs:
+# context path; if not specified it defaults to "" (the "root" context)
+# host name; if not specified it defaults to "localhost"
+# HTTP port; if not specified it defaults to 8080
+# HTTPS port; there is no default for this, but if specified you can also specify the keystore path and password
+# SSL keystore path; if not specified a temporary keystore will be generated
+# SSL keystore password; required if an existing keystore path is specified
+
+So the full syntax would be:
+{code:java}
+java -jar [jar path] [context path] [host name] [HTTP port] [HTTPS port] \
+          [SSL keystore path] [SSL keystore password]
+{code}
+
+For example running
+
+{code:java}
+java -jar /path/to/jar_name.jar
+{code}
+
+will start a server at @http://localhost:8080/@ and
+
+{code:java}
+java -jar /path/to/jar_name.jar cool_demo localhost 9000
+{code}
+
+will start a server at @http://localhost:9000/cool_demo@
+
+{code:java}
+java -jar /path/to/jar_name.jar cool_demo localhost 8080 8443
+{code}
+
+will start a server at @http://localhost:8080/cool_demo@ and will also support SSL at @https://localhost:8443/cool_demo@
