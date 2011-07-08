@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <title>Grails Standalone Plugin 0.1 - Reference Documentation</title>
+        <link rel="stylesheet" href="../../css/ref.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
+    </head>
+    <body class="body">
+    <h1>build-standalone</h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Builds a runnable JAR file that contains the application and embeds Tomcat 7.<p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Builds a JAR file in the <code>target</code> directory called <code>standalone.jar</code>. This can be run with <code>java -jar standalone.jar</code> and can take optional arguments for the context path, port, etc.<p class="paragraph"/><blockquote class="warning">
+Since this script builds a war file if you don't specify an existing one, be sure to specify the correct environment to build with.
+</blockquote><p class="paragraph"/>Usage:
+<div class="code"><pre>grails &#91;environment&#93; build&#45;standalone &#91;jarname&#93; &#91;&#45;&#45;warfile&#93;</pre></div><p class="paragraph"/>Examples:
+<div class="code"><pre>// build a JAR with the production environment settings and keeping the <span class="java&#45;keyword">default</span> filename
+grails prod build&#45;standalone</pre></div><p class="paragraph"/><div class="code"><pre>// build a JAR with the 'demo' environment settings in the current directory with a custom name
+grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/>Required arguments: <em class="italic">none</em> .<p class="paragraph"/>Optional arguments:
+<ul class="star">
+<li><code>jarname</code> - The directory and name of the JAR file being built (defaults to <code>target/standalone.jar</code>)</li>
+<li><code>warfile</code> - The path to an existing war file to embed</li>
+</ul><p class="paragraph"/>
+    
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-16219500-1']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+</body>
+</html>
