@@ -23,4 +23,11 @@ class StandaloneGrailsPlugin {
 	String title = 'Standalone App Runner'
 	String description = 'Runs a Grails application as a JAR file with an embedded Tomcat server'
 	String documentation = 'http://grails.org/plugin/standalone'
+
+	String license = 'APACHE'
+	def organization = [ name: 'SpringSource', url: 'http://www.springsource.org/' ]
+	def developers = [
+		 [ name: 'Burt Beckwith', email: 'beckwithb@vmware.com' ] ]
+	def issueManagement = [ system: 'JIRA', url: 'http://jira.grails.org/browse/GPSTANDALONE' ]
+	def scm = [ url: 'https://github.com/grails-plugins/grails-standalone' ]
 }
