@@ -24,8 +24,13 @@ import org.apache.juli.logging.LogFactory // tomcat-embed-logging-log4j-7.0.16.j
 import org.eclipse.jdt.core.JDTCompilerAdapter // ecj-3.6.2.jar
 
 includeTargets << grailsScript('_GrailsWar')
- 
+
 target(buildStandalone: 'Build a standalone app with embedded server') {
+	depends configureProxy, compile, createConfig, loadPlugins
+
+	if ('development'.equals(grailsEnv) && !argsMap.warfile) {
+		event('StatusUpdate', ["You're running in the development environment but haven't specified a war file, so one will be built with development settings."])
+	}
 
 	File workDir = new File(grailsSettings.projectTargetDir, 'standalone-temp-' + System.currentTimeMillis())
 	if (!workDir.deleteDir()) {
@@ -37,8 +42,23 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		return
 	}
 
-	File warfile = buildWar(workDir)
-	buildJar workDir
+	String jarname = argsMap.params[0]
+
+	File warfile
+	if (argsMap.warfile) {
+		warfile = new File(argsMap.warfile)
+		if (warfile.exists()) {
+			println "Using war file $argsMap.warfile"
+		}
+		else {
+			errorAndDie "War file $argsMap.warfile not found"
+		}
+	}
+	else {
+		warfile = buildWar(workDir)
+	}
+
+	buildJar workDir, jarname
 
 	if (!workDir.deleteDir()) {
 		event('StatusError', ["Unable to delete $workDir"])
@@ -57,19 +77,23 @@ buildWar = { File workDir ->
 	warfile
 }
 
-buildJar = { File workDir ->
+buildJar = { File workDir, String jarPath ->
 	for (clazz in [DeployTask, Engine, JspC, LogFactory, JDTCompilerAdapter]) {
 		if (!unpackContainingJar(clazz, workDir)) {
 			return false
 		}
 	}
 
+	// compile Launcher.java so it's directly in the JAR
 	ant.javac srcdir: new File(standalonePluginDir, 'src/java'),
 	          destdir: workDir,
+	          debug: true,
 	          source: '1.5',
 	          target: '1.5'
 
-	ant.jar(basedir: workDir, destfile: new File(workDir.parentFile, 'standalone.jar')) {
+	File jar = jarPath ? new File(jarPath) : new File(workDir.parentFile, 'standalone.jar')
+	jar.parentFile.mkdirs()
+	ant.jar(basedir: workDir, destfile: jar) {
 		manifest {
 			attribute name: 'Main-Class', value: 'grails.plugin.standalone.Launcher'
 		}

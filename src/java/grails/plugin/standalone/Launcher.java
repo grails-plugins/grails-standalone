@@ -15,13 +15,11 @@
 package grails.plugin.standalone;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
-import java.util.Arrays;
-import java.util.List;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
@@ -29,7 +27,9 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.http11.Http11NioProtocol;
 
 /**
- * Main class; extracts the embedded war and starts Tomcat.
+ * Main class; extracts the embedded war and starts Tomcat. Inlines some utility methods since
+ * the classpath is limited. Based on org.grails.plugins.tomcat.IsolatedTomcat and
+ * org.grails.plugins.tomcat.IsolatedWarTomcatServer.
  *
  * @author Burt Beckwith
  */
@@ -39,7 +39,9 @@ public class Launcher {
 
 	/**
 	 * Start the server.
-	 * @param args args
+	 *
+	 * @param args optional; 1st is context path, 2nd is host, 3rd is http port,
+	 * 4th is SSL port, 5th is SSL keystore path, 6th is keystore password
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
@@ -48,85 +50,64 @@ public class Launcher {
 		launcher.start(war, args);
 	}
 
-	protected File extractWar() throws FileNotFoundException, IOException {
+	protected File extractWar() throws IOException {
 		InputStream embeddedWarfile = Launcher.class.getClassLoader().getResourceAsStream("embedded.war");
 		File tempWarfile = File.createTempFile("embedded", ".war").getAbsoluteFile();
 		tempWarfile.getParentFile().mkdirs();
 		tempWarfile.deleteOnExit();
-
-		String embeddedWebroot = "";
-		File tempWebroot = new File(tempWarfile.getParentFile(), embeddedWebroot);
-		tempWebroot.mkdirs();
-
 		copy(embeddedWarfile, new FileOutputStream(tempWarfile));
 		return tempWarfile;
 	}
 
-	protected void copy(InputStream in, FileOutputStream out) throws IOException {
-		try {
-			byte[] buffer = new byte[BUFFER_SIZE];
-			int bytesRead = -1;
-			while ((bytesRead = in.read(buffer)) != -1) {
-				out.write(buffer, 0, bytesRead);
-			}
-			out.flush();
-		}
-		finally {
-			try { in.close(); }
-			catch (IOException ignored) {
-				// ignored
-			}
-			try { out.close(); }
-			catch (IOException ignored) {
-				// ignored
-			}
-		}
-	}
-
 	protected void start(File war, String[] args) throws IOException {
+
 		File workDir = new File(System.getProperty("java.io.tmpdir"));
-		File tomcatDir = new File(workDir, "tomcat");
+		String contextPath = "";
+		if (args.length > 0) contextPath = args[0];
+		if (hasLength(contextPath) && !contextPath.startsWith("/")) {
+			contextPath = '/' + contextPath;
+		}
+		String host = "localhost";
+		if (args.length > 1) host = args[1];
+		int port = argToNumber(args, 2, 8080);
+		int httpsPort = argToNumber(args, 3, 0);
+
+		String keystorePath = "";
+		String keystorePassword = "";
+		if (httpsPort > 0 && args.length > 5) {
+			keystorePath = args[4];
+			keystorePassword = args[5];
+		}
+
 		boolean usingUserKeystore;
 		File keystoreFile;
-		String keyPassword = "";
-		String contextPath = "";
-		boolean useNio = false;
-
-		String userKeystore = null;
-		if (hasLength(userKeystore)) {
+		if (hasLength(keystorePath)) {
 			usingUserKeystore = true;
-			keystoreFile = new File(userKeystore);
-//			keyPassword = getConfigParam("keystorePassword") ?: "changeit" // changeit is the keystore default
+			keystoreFile = new File(keystorePath);
 		}
 		else {
 			usingUserKeystore = false;
 			keystoreFile = new File(workDir, "ssl/keystore");
-			keyPassword = "123456";
+			keystorePassword = "123456";
 		}
 
-//		tomcatDir.deleteDir();
+		File tomcatDir = new File(workDir, "grails-standalone-tomcat");
+		deleteDir(tomcatDir);
 
-		String host = "localhost";
-		int port = 8080;
-		int httpsPort = 0; //8443;
+		Tomcat tomcat = configureTomcat(tomcatDir, contextPath, war, host, port,
+				httpsPort, keystoreFile, keystorePassword, usingUserKeystore);
 
-		String keystorePath = "";
-		String keystorePassword = "";
-		if (httpsPort > 0) {
-			keystorePath = "";
-			keystorePassword = "";
-		}
+		startKillSwitchThread(tomcat, port);
 
-		final Tomcat tomcat = new Tomcat();
+		startTomcat(tomcat, host, port, contextPath, httpsPort > 0 ? httpsPort : null);
+	}
+
+	protected Tomcat configureTomcat(File tomcatDir, String contextPath, File war,
+			String host, int port, int httpsPort, File keystoreFile,
+			String keystorePassword, boolean usingUserKeystore) throws IOException {
+
+		Tomcat tomcat = new Tomcat();
 		tomcat.setPort(port);
-
-		if (useNio) {
-			System.out.println("Enabling Tomcat NIO Connector");
-			Connector connector = new Connector(Http11NioProtocol.class.getName());
-			connector.setPort(port);
-			tomcat.getService().addConnector(connector);
-			tomcat.setConnector(connector);
-		}
 
 		tomcat.setBaseDir(tomcatDir.getPath());
 		try {
@@ -139,7 +120,9 @@ public class Launcher {
 		}
 		tomcat.enableNaming();
 
-		final Connector connector = tomcat.getConnector();
+		addNioConnector(tomcat, port);
+
+		Connector connector = tomcat.getConnector();
 
 		// Only bind to host name if we aren't using the default
 		if (!host.equals("localhost")) {
@@ -149,33 +132,16 @@ public class Launcher {
 		connector.setURIEncoding("UTF-8");
 
 		if (httpsPort > 0) {
-			initSsl(keystoreFile, keyPassword, usingUserKeystore);
-
-			Connector sslConnector;
-			try {
-				sslConnector = new Connector();
-			}
-			catch (Exception e) {
-				throw new RuntimeException("Couldn't create HTTPS connector", e);
-			}
-
-			sslConnector.setScheme("https");
-			sslConnector.setSecure(true);
-			sslConnector.setPort(httpsPort);
-			sslConnector.setProperty("SSLEnabled", "true");
-			sslConnector.setAttribute("keystoreFile", keystorePath);
-			sslConnector.setAttribute("keystorePass", keystorePassword);
-			sslConnector.setURIEncoding("UTF-8");
-
-			if (!host.equals("localhost")) {
-				sslConnector.setAttribute("address", host);
-			}
-
-			tomcat.getService().addConnector(sslConnector);
+			initSsl(keystoreFile, keystorePassword, usingUserKeystore);
+			createSslConnector(tomcat, httpsPort, keystoreFile, keystorePassword, host);
 		}
 
-		final int serverPort = port;
-		new Thread(new Runnable() {
+		return tomcat;
+	}
+
+	protected void startKillSwitchThread(final Tomcat tomcat, final int serverPort) {
+		new Thread() {
+			@Override
 			public void run() {
 				int killListenerPort = serverPort + 1;
 				ServerSocket serverSocket = createKillSwitch(killListenerPort);
@@ -195,11 +161,20 @@ public class Launcher {
 					}
 				}
 			}
-		}).start();
+		}.start();
+	}
 
+	protected void startTomcat(Tomcat tomcat, String host, int port, String contextPath, Integer securePort) {
 		try {
 			tomcat.start();
-			String message = "Server running. Browse to http://"+(host != null ? host : "localhost")+":"+port+contextPath;
+			String message = "Server running. Browse to http://" +
+					(host != null ? host : "localhost") +
+					":" + port + contextPath;
+			if (securePort != null) {
+				message += " or https://" +
+						(host != null ? host : "localhost") +
+						":" + securePort + contextPath;
+			}
 			System.out.println(message);
 		}
 		catch (LifecycleException e) {
@@ -207,6 +182,45 @@ public class Launcher {
 			System.err.println("Error loading Tomcat: " + e.getMessage());
 			System.exit(1);
 		}
+	}
+
+	protected void createSslConnector(Tomcat tomcat, int httpsPort, File keystoreFile,
+			String keystorePassword, String host) {
+
+		Connector sslConnector;
+		try {
+			sslConnector = new Connector();
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Couldn't create HTTPS connector", e);
+		}
+
+		sslConnector.setScheme("https");
+		sslConnector.setSecure(true);
+		sslConnector.setPort(httpsPort);
+		sslConnector.setProperty("SSLEnabled", "true");
+		sslConnector.setAttribute("keystoreFile", keystoreFile.getAbsolutePath());
+		sslConnector.setAttribute("keystorePass", keystorePassword);
+		sslConnector.setURIEncoding("UTF-8");
+
+		if (!host.equals("localhost")) {
+			sslConnector.setAttribute("address", host);
+		}
+
+		tomcat.getService().addConnector(sslConnector);
+	}
+
+	protected void addNioConnector(Tomcat tomcat, int port) {
+		boolean useNio = Boolean.getBoolean("tomcat.nio");
+		if (!useNio) {
+			return;
+		}
+
+		System.out.println("Enabling Tomcat NIO Connector");
+		Connector connector = new Connector(Http11NioProtocol.class.getName());
+		connector.setPort(port);
+		tomcat.getService().addConnector(connector);
+		tomcat.setConnector(connector);
 	}
 
 	protected ServerSocket createKillSwitch(int killListenerPort) {
@@ -218,17 +232,16 @@ public class Launcher {
 		}
 	}
 
-	protected void initSsl(File keystoreFile, String keyPassword, boolean usingUserKeystore) throws IOException {
-		if (!keystoreFile.exists()) {
-			if (usingUserKeystore) {
-				throw new IllegalStateException(
-						"cannot start tomcat in https because use keystore does not exist (value: " + keystoreFile + ")");
-			}
-			createSSLCertificate(keystoreFile, keyPassword);
+	protected void initSsl(File keystoreFile, String keystorePassword, boolean usingUserKeystore) throws IOException {
+		if (keystoreFile.exists()) {
+			return;
 		}
-	}
 
-	protected void createSSLCertificate(File keystoreFile, String keyPassword) throws IOException {
+		if (usingUserKeystore) {
+			throw new IllegalStateException(
+					"cannot start tomcat in https because use keystore does not exist (value: " + keystoreFile + ")");
+		}
+
 		System.out.println("Creating SSL Certificate...");
 
 		File keystoreDir = keystoreFile.getParentFile();
@@ -236,18 +249,22 @@ public class Launcher {
 			throw new RuntimeException("Unable to create keystore folder: " + keystoreDir.getCanonicalPath());
 		}
 
-//		getKeyToolClass().main(
-//				"-genkey",
-//				"-alias", "localhost",
-//				"-dname", "CN=localhost,OU=Test,O=Test,C=US",
-//				"-keyalg", "RSA",
-//				"-validity", "365",
-//				"-storepass", "key",
-//				"-keystore", keystoreFile.getAbsolutePath(),
-//				"-storepass", keyPassword,
-//				"-keypass", keyPassword);
-
-		System.out.println("Created SSL Certificate.");
+		try {
+			getKeyToolClass().getMethod("main", String[].class).invoke(null, new Object[] { new String[] {
+					"-genkey",
+					"-alias", "localhost",
+					"-dname", "CN=localhost,OU=Test,O=Test,C=US",
+					"-keyalg", "RSA",
+					"-validity", "365",
+					"-storepass", "key",
+					"-keystore", keystoreFile.getAbsolutePath(),
+					"-storepass", keystorePassword,
+					"-keypass", keystorePassword}});
+			System.out.println("Created SSL Certificate.");
+		}
+		catch (Exception e) {
+			System.err.println("Unable to create an SSL certificate: " + e.getMessage());
+		}
 	}
 
 	protected Class<?> getKeyToolClass() throws ClassNotFoundException {
@@ -262,5 +279,71 @@ public class Launcher {
 
 	protected boolean hasLength(String s) {
 		return s != null && s.trim().length() > 0;
+	}
+
+	protected int argToNumber(String[] args, int i, int orDefault) {
+		if (args.length > i) {
+			try {
+				return Integer.parseInt(args[i]);
+			}
+			catch (NumberFormatException e) {
+				return orDefault;
+			}
+		}
+		return orDefault;
+	}
+
+	// from org.springframework.util.FileCopyUtils.copy()
+	protected void copy(InputStream in, OutputStream out) throws IOException {
+		try {
+			byte[] buffer = new byte[BUFFER_SIZE];
+			int bytesRead = -1;
+			while ((bytesRead = in.read(buffer)) != -1) {
+				out.write(buffer, 0, bytesRead);
+			}
+			out.flush();
+		}
+		finally {
+			try { in.close(); }
+			catch (IOException ignored) { /*ignored*/ }
+			try { out.close(); }
+			catch (IOException ignored) { /*ignored*/ }
+		}
+	}
+
+	// from DefaultGroovyMethods.deleteDir()
+	protected boolean deleteDir(final File dir) {
+		if (!dir.exists()) {
+			return true;
+		}
+
+      if (!dir.isDirectory()) {
+      	return false;
+      }
+
+      File[] files = dir.listFiles();
+      if (files == null) {
+      	return false;
+      }
+
+      boolean result = true;
+      for (File file : files) {
+      	if (file.isDirectory()) {
+      		if (!deleteDir(file)) {
+      			result = false;
+      		}
+      	}
+      	else {
+      		if (!file.delete()) {
+      			result = false;
+      		}
+      	}
+      }
+
+      if (!dir.delete()) {
+      	result = false;
+      }
+
+      return result;
 	}
 }
