@@ -32,7 +32,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		event('StatusUpdate', ["You're running in the development environment but haven't specified a war file, so one will be built with development settings."])
 	}
 
-	File workDir = new File(grailsSettings.projectTargetDir, 'standalone-temp-' + System.currentTimeMillis())
+	File workDir = new File(grailsSettings.projectTargetDir, 'standalone-temp-' + System.currentTimeMillis()).absoluteFile
 	if (!workDir.deleteDir()) {
 		event('StatusError', ["Unable to delete $workDir"])
 		return
@@ -43,12 +43,14 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 	}
 
 	String jarname = argsMap.params[0]
+	File jar = jarname ? new File(jarname).absoluteFile : new File(workDir.parentFile, 'standalone.jar').absoluteFile
 
 	File warfile
 	if (argsMap.warfile) {
-		warfile = new File(argsMap.warfile)
+		warfile = new File(argsMap.warfile).absoluteFile
 		if (warfile.exists()) {
 			println "Using war file $argsMap.warfile"
+			buildJar workDir, jar, warfile
 		}
 		else {
 			errorAndDie "War file $argsMap.warfile not found"
@@ -56,9 +58,8 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 	}
 	else {
 		warfile = buildWar(workDir)
+		buildJar workDir, jar
 	}
-
-	buildJar workDir, jarname
 
 	if (!workDir.deleteDir()) {
 		event('StatusError', ["Unable to delete $workDir"])
@@ -66,7 +67,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 }
 
 buildWar = { File workDir ->
-	File warfile = new File(workDir, 'embedded.war')
+	File warfile = new File(workDir, 'embedded.war').absoluteFile
 	warfile.deleteOnExit()
 
 	argsMap.params.clear()
@@ -77,7 +78,7 @@ buildWar = { File workDir ->
 	warfile
 }
 
-buildJar = { File workDir, String jarPath ->
+buildJar = { File workDir, File jar, File warfile = null ->
 	for (clazz in [DeployTask, Engine, JspC, LogFactory, JDTCompilerAdapter]) {
 		if (!unpackContainingJar(clazz, workDir)) {
 			return false
@@ -91,9 +92,12 @@ buildJar = { File workDir, String jarPath ->
 	          source: '1.5',
 	          target: '1.5'
 
-	File jar = jarPath ? new File(jarPath) : new File(workDir.parentFile, 'standalone.jar')
 	jar.parentFile.mkdirs()
-	ant.jar(basedir: workDir, destfile: jar) {
+	ant.jar(destfile: jar) {
+		fileset dir: workDir
+		if (warfile) {
+			zipfileset file: warfile, fullpath: 'embedded.war'
+		}
 		manifest {
 			attribute name: 'Main-Class', value: 'grails.plugin.standalone.Launcher'
 		}
@@ -103,7 +107,7 @@ buildJar = { File workDir, String jarPath ->
 }
 
 unpackContainingJar = { Class clazz, File workDir ->
-	File jar = new File(clazz.protectionDomain.codeSource.location.toURI())
+	File jar = new File(clazz.protectionDomain.codeSource.location.toURI()).absoluteFile
 	if (!jar.exists()) {
 		event('StatusError', ["Jar $jar not found"])
 		return false
@@ -114,7 +118,7 @@ unpackContainingJar = { Class clazz, File workDir ->
 }
 
 removeTomcatJarsFromWar = { File workDir, File warfile ->
-	def expandedDir = new File(workDir, 'expanded')
+	def expandedDir = new File(workDir, 'expanded').absoluteFile
 	ant.unzip src: warfile, dest: expandedDir
 	for (file in new File(expandedDir, 'WEB-INF/lib').listFiles()) {
 		if (file.name.startsWith('tomcat-') && !file.name.contains('pool')) {
