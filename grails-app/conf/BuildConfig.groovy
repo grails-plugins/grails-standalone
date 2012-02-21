@@ -16,7 +16,7 @@ grails.project.dependency.resolution = {
 	}
 
 	dependencies {
-		String tomcatVersion = '7.0.16'
+		String tomcatVersion = '7.0.25'
 
 		runtime('org.apache.tomcat:tomcat-catalina-ant:' + tomcatVersion) {
 			transitive = false
@@ -30,6 +30,9 @@ grails.project.dependency.resolution = {
 		runtime('org.apache.tomcat.embed:tomcat-embed-logging-log4j:' + tomcatVersion) {
 			transitive = false
 		}
+        runtime('org.apache.tomcat.embed:tomcat-embed-logging-juli:' + tomcatVersion) {
+            transitive = false    
+        }
 		runtime('org.eclipse.jdt.core.compiler:ecj:3.6.2') {
 			transitive = false
 		}

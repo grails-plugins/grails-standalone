@@ -17,10 +17,11 @@
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
 
-import org.apache.catalina.Engine // tomcat-catalina-ant-7.0.16.jar
-import org.apache.catalina.ant.DeployTask // tomcat-embed-core-7.0.16.jar
-import org.apache.jasper.JspC // tomcat-embed-jasper-7.0.16.jar
-import org.apache.juli.logging.LogFactory // tomcat-embed-logging-log4j-7.0.16.jar
+import org.apache.catalina.Engine // tomcat-catalina-ant-7.0.25.jar
+import org.apache.catalina.ant.DeployTask // tomcat-embed-core-7.0.25.jar
+import org.apache.jasper.JspC // tomcat-embed-jasper-7.0.25.jar
+import org.apache.juli.logging.LogFactory // tomcat-embed-logging-log4j-7.0.25.jar
+import org.apache.juli.logging.UserDataHelper // tomcat-embed-logging-juli-7.0.25.jar
 import org.eclipse.jdt.core.JDTCompilerAdapter // ecj-3.6.2.jar
 
 includeTargets << grailsScript('_GrailsWar')
@@ -79,7 +80,7 @@ buildWar = { File workDir ->
 }
 
 buildJar = { File workDir, File jar, File warfile = null ->
-	for (clazz in [DeployTask, Engine, JspC, LogFactory, JDTCompilerAdapter]) {
+	for (clazz in [DeployTask, Engine, JspC, LogFactory, UserDataHelper, JDTCompilerAdapter]) {
 		if (!unpackContainingJar(clazz, workDir)) {
 			return false
 		}
