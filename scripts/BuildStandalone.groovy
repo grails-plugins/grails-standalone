@@ -92,7 +92,7 @@ buildJar = { File workDir, File jar, File warfile = null ->
 	          source: '1.5',
 	          target: '1.5'
 
-	jar.parentFile.mkdirs()
+	jar.canonicalFile.parentFile.mkdirs()
 	ant.jar(destfile: jar) {
 		fileset dir: workDir
 		if (warfile) {
