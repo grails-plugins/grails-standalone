@@ -44,7 +44,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		}
 
 		String jarname = argsMap.params[0]
-		File jar = jarname ? new File(jarname).absoluteFile : new File(workDir.parentFile, 'standalone.jar').absoluteFile
+		File jar = jarname ? new File(jarname).absoluteFile : new File(workDir.parentFile, 'standalone-' + grailsAppVersion + '.jar').absoluteFile
 
 		File warfile
 		if (argsMap.warfile) {
