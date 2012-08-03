@@ -1,4 +1,4 @@
-/* Copyright 2011 SpringSource
+/* Copyright 2011-2012 SpringSource
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,12 +63,16 @@ public class Launcher {
 
 		File workDir = new File(System.getProperty("java.io.tmpdir"));
 		String contextPath = "";
-		if (args.length > 0) contextPath = args[0];
+		if (args.length > 0) {
+			contextPath = args[0];
+		}
 		if (hasLength(contextPath) && !contextPath.startsWith("/")) {
 			contextPath = '/' + contextPath;
 		}
 		String host = "localhost";
-		if (args.length > 1) host = args[1];
+		if (args.length > 1) {
+			host = args[1];
+		}
 		int port = argToNumber(args, 2, 8080);
 		int httpsPort = argToNumber(args, 3, 0);
 

@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="grails-app/conf"/>
 	<classpathentry kind="src" path="scripts"/>
-	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="src/docs"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path=".link_to_grails_plugins/release-2.0.3/src/groovy">
