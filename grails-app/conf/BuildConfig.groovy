@@ -1,7 +1,6 @@
-grails.project.class.dir = 'target/classes'
-grails.project.test.class.dir = 'target/test-classes'
-grails.project.test.reports.dir = 'target/test-reports'
-grails.project.docs.output.dir = 'docs' // for backwards-compatibility, the docs are checked into gh-pages branch
+grails.project.work.dir = 'target'
+grails.project.source.level = 1.6
+grails.project.docs.output.dir = 'docs/manual' // for backwards-compatibility, the docs are checked into gh-pages branch
 
 grails.project.dependency.resolution = {
 
@@ -9,29 +8,16 @@ grails.project.dependency.resolution = {
 	log 'warn'
 
 	repositories {
-		grailsPlugins()
-		grailsHome()
 		grailsCentral()
-		mavenRepo 'http://repo.grails.org/grails/core'
+		mavenLocal()
+		mavenCentral()
 	}
 
-	dependencies {
-		String tomcatVersion = '7.0.16'
+	dependencies {}
 
-		runtime('org.apache.tomcat:tomcat-catalina-ant:' + tomcatVersion) {
-			transitive = false
-		}
-		runtime('org.apache.tomcat.embed:tomcat-embed-core:' + tomcatVersion) {
-			transitive = false
-		}
-		runtime('org.apache.tomcat.embed:tomcat-embed-jasper:' + tomcatVersion) {
-			transitive = false
-		}
-		runtime('org.apache.tomcat.embed:tomcat-embed-logging-log4j:' + tomcatVersion) {
-			transitive = false
-		}
-		runtime('org.eclipse.jdt.core.compiler:ecj:3.6.2') {
-			transitive = false
+	plugins {
+		build(':release:2.0.3', ':rest-client-builder:1.0.2') {
+			export = false
 		}
 	}
 }
