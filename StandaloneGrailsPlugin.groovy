@@ -1,4 +1,4 @@
-/* Copyright 2011 SpringSource
+/* Copyright 2011-2012 SpringSource
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
  */
 class StandaloneGrailsPlugin {
 
-	String version = '1.0'
+	String version = '1.0.1'
 	String grailsVersion = '1.3 > *'
 	def scopes = [excludes: 'war']
+	List pluginExcludes = [
+		'docs/**',
+		'src/docs/**'
+	]
 
 	String author = 'Burt Beckwith'
 	String authorEmail = 'beckwithb@vmware.com'
@@ -25,9 +29,7 @@ class StandaloneGrailsPlugin {
 	String documentation = 'http://grails.org/plugin/standalone'
 
 	String license = 'APACHE'
-	def organization = [ name: 'SpringSource', url: 'http://www.springsource.org/' ]
-	def developers = [
-		 [ name: 'Burt Beckwith', email: 'beckwithb@vmware.com' ] ]
-	def issueManagement = [ system: 'JIRA', url: 'http://jira.grails.org/browse/GPSTANDALONE' ]
-	def scm = [ url: 'https://github.com/grails-plugins/grails-standalone' ]
+	def organization = [name: 'SpringSource', url: 'http://www.springsource.org/']
+	def issueManagement = [system: 'JIRA', url: 'http://jira.grails.org/browse/GPSTANDALONE']
+	def scm = [url: 'https://github.com/grails-plugins/grails-standalone']
 }
