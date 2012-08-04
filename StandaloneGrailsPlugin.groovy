@@ -17,6 +17,10 @@ class StandaloneGrailsPlugin {
 	String version = '1.0'
 	String grailsVersion = '1.3 > *'
 	def scopes = [excludes: 'war']
+	List pluginExcludes = [
+		'docs/**',
+		'src/docs/**'
+	]
 
 	String author = 'Burt Beckwith'
 	String authorEmail = 'beckwithb@vmware.com'
