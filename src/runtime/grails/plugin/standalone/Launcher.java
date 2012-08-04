@@ -14,12 +14,17 @@
  */
 package grails.plugin.standalone;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
@@ -45,9 +50,15 @@ public class Launcher {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		Launcher launcher = new Launcher();
-		File war = launcher.extractWar();
-		launcher.start(war, args);
+		final Launcher launcher = new Launcher();
+		final File exploded = launcher.extractWar();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				launcher.deleteDir(exploded);
+			}
+		});
+		launcher.start(exploded, args);
 	}
 
 	protected File extractWar() throws IOException {
@@ -56,10 +67,51 @@ public class Launcher {
 		tempWarfile.getParentFile().mkdirs();
 		tempWarfile.deleteOnExit();
 		copy(embeddedWarfile, new FileOutputStream(tempWarfile));
-		return tempWarfile;
+		return explode(tempWarfile);
 	}
 
-	protected void start(File war, String[] args) throws IOException {
+	protected File explode(File war) throws IOException {
+		String basename = war.getName();
+		int index = basename.lastIndexOf('.');
+		if (index > -1) {
+			basename = basename.substring(0, index);
+		}
+		File explodedDir = new File(war.getParentFile(), basename + "-exploded-" + System.currentTimeMillis());
+
+		ZipFile zipfile = new ZipFile(war);
+		for (Enumeration<? extends ZipEntry> e = zipfile.entries(); e.hasMoreElements(); ) {
+			unzip(e.nextElement(), zipfile, explodedDir);
+		}
+		zipfile.close();
+
+		return explodedDir;
+	}
+
+	protected void unzip(ZipEntry entry, ZipFile zipfile, File explodedDir) throws IOException {
+
+		if (entry.isDirectory()) {
+			new File(explodedDir, entry.getName()).mkdirs();
+			return;
+		}
+
+		File outputFile = new File(explodedDir, entry.getName());
+		if (!outputFile.getParentFile().exists()) {
+			outputFile.getParentFile().mkdirs();
+		}
+
+		BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
+		BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
+
+		try {
+			copy(inputStream, outputStream);
+		}
+		finally {
+			outputStream.close();
+			inputStream.close();
+		}
+	}
+
+	protected void start(File exploded, String[] args) throws IOException {
 
 		File workDir = new File(System.getProperty("java.io.tmpdir"));
 		String contextPath = "";
@@ -98,7 +150,7 @@ public class Launcher {
 		File tomcatDir = new File(workDir, "grails-standalone-tomcat");
 		deleteDir(tomcatDir);
 
-		Tomcat tomcat = configureTomcat(tomcatDir, contextPath, war, host, port,
+		Tomcat tomcat = configureTomcat(tomcatDir, contextPath, exploded, host, port,
 				httpsPort, keystoreFile, keystorePassword, usingUserKeystore);
 
 		startKillSwitchThread(tomcat, port);
@@ -106,7 +158,7 @@ public class Launcher {
 		startTomcat(tomcat, host, port, contextPath, httpsPort > 0 ? httpsPort : null);
 	}
 
-	protected Tomcat configureTomcat(File tomcatDir, String contextPath, File war,
+	protected Tomcat configureTomcat(File tomcatDir, String contextPath, File exploded,
 			String host, int port, int httpsPort, File keystoreFile,
 			String keystorePassword, boolean usingUserKeystore) throws IOException {
 
@@ -115,7 +167,7 @@ public class Launcher {
 
 		tomcat.setBaseDir(tomcatDir.getPath());
 		try {
-			tomcat.addWebapp(contextPath, war.getAbsolutePath());
+			tomcat.addWebapp(contextPath, exploded.getAbsolutePath());
 		}
 		catch (Exception e) {
 			e.printStackTrace();

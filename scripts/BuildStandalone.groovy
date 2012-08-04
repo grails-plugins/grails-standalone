@@ -51,7 +51,9 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 			warfile = new File(argsMap.warfile).absoluteFile
 			if (warfile.exists()) {
 				println "Using war file $argsMap.warfile"
-				buildJar workDir, jar, warfile
+				if (!buildJar(workDir, jar, warfile)) {
+					return
+				}
 			}
 			else {
 				errorAndDie "War file $argsMap.warfile not found"
@@ -59,7 +61,9 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		}
 		else {
 			warfile = buildWar(workDir)
-			buildJar workDir, jar
+			if (!buildJar(workDir, jar)) {
+				return
+			}
 		}
 
 		if (!workDir.deleteDir()) {
