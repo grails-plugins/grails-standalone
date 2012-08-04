@@ -29,6 +29,7 @@ import java.util.zip.ZipFile;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.catalina.valves.CrawlerSessionManagerValve;
 import org.apache.coyote.http11.Http11NioProtocol;
 
 /**
@@ -177,6 +178,8 @@ public class Launcher {
 		tomcat.enableNaming();
 
 		addNioConnector(tomcat, port);
+
+		tomcat.getEngine().getPipeline().addValve(new CrawlerSessionManagerValve());
 
 		Connector connector = tomcat.getConnector();
 
