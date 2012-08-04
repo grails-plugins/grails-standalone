@@ -6,7 +6,7 @@ Builds a runnable JAR file that contains the application and embeds Tomcat 7.
 
 h2. Description
 
-Builds a JAR file in the @target@ directory called @standalone.jar@. This can be run with @java -jar standalone.jar@ and can take optional arguments for the context path, port, etc.
+Builds a JAR file in the @target@ directory called @standalone-<application version>.jar@. This can be run with @java -jar standalone-<application version>.jar@ and can take optional arguments for the context path, port, etc.
 
 {warning}
 Since this script builds a war file if you don't specify an existing one, be sure to specify the correct environment to build with.
@@ -32,5 +32,5 @@ Required arguments: _none_ .
 
 Optional arguments:
 
-* @jarname@ - The directory and name of the JAR file being built (defaults to @target/standalone.jar@)
+* @jarname@ - The directory and name of the JAR file being built (defaults to @target/standalone-<application version>.jar@, e.g. @target/standalone-0.1.jar@)
 * @warfile@ - The path to an existing war file to embed
