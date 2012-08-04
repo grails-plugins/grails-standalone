@@ -1,22 +1,107 @@
-<html>
-    <head>
-        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-        <title>Grails Standalone Plugin 1.0 - Reference Documentation</title>
-        <link rel="stylesheet" href="../../css/ref.css" type="text/css" media="screen" title="Ref" charset="utf-8"/>
-    </head>
-    <body class="body">
-    <h1>build-standalone</h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Builds a runnable JAR file that contains the application and embeds Tomcat 7.<p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Builds a JAR file in the <code>target</code> directory called <code>standalone.jar</code>. This can be run with <code>java -jar standalone.jar</code> and can take optional arguments for the context path, port, etc.<p class="paragraph"/><blockquote class="warning">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <title>Grails Standalone Plugin 1.0.1</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../../css/main.css" type="text/css" media="screen, print" title="Style" charset="utf-8"/>
+    <link rel="stylesheet" href="../../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8"/>
+    <script type="text/javascript">
+function addJsClass(el) {
+    var classes = document.body.className.split(" ");
+    classes.push("js");
+    document.body.className = classes.join(" ");
+}
+    </script>
+</head>
+
+<body class="body" onload="addJsClass();">
+
+<div id="navigation">
+    <ul>
+        <li>
+            <div id="nav-summary" onmouseover="toggleNavSummary(false)" onmouseout="toggleNavSummary(true)">
+                <a href="../../guide/index.html" class="button">Table of contents</a>
+
+                <div id="nav-summary-childs">
+                    
+                    <div class="toc-item" style="margin-left:0"><a href="../../guide/1%20Introduction%20to%20the%20Standalone%20Plugin.html"><strong>1</strong><span>Introduction to the Standalone Plugin</span></a>
+                    </div>
+                    
+                    <div class="toc-item" style="margin-left:0"><a href="../../guide/2%20Running%20the%20application.html"><strong>2</strong><span>Running the application</span></a>
+                    </div>
+                    
+                </div>
+            </div>
+        </li>
+        <li class="separator selected">
+            <a id="ref-button" onclick="localToggle(); return false;" href="#">Quick Reference</a>
+        </li>
+    </ul>
+</div>
+<div id="header">
+    <div class="images clearfix">
+        
+        
+    </div>
+    <p>Runs a Grails application as a JAR file with an embedded Tomcat server</p>
+</div>
+
+
+<table id="colset" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td id="col1">
+            <div id="main" class="reference corner-all">
+
+                <span id='toggle-col1' class="toggle">(<a href="#" onclick="localToggle(); return false;">Quick Reference</a>)</span>
+
+                <h1>build-standalone</h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Builds a runnable JAR file that contains the application and embeds Tomcat 7.<p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Builds a JAR file in the <code>target</code> directory called <code>standalone-&#60;application version&#62;.jar</code>. This can be run with <code>java -jar standalone-&#60;application version&#62;.jar</code> and can take optional arguments for the context path, port, etc.<p class="paragraph"/><blockquote class="warning">
 Since this script builds a war file if you don't specify an existing one, be sure to specify the correct environment to build with.
 </blockquote><p class="paragraph"/>Usage:
 <div class="code"><pre>grails &#91;environment&#93; build&#45;standalone &#91;jarname&#93; &#91;&#45;&#45;warfile&#93;</pre></div><p class="paragraph"/>Examples:
 <div class="code"><pre>// build a JAR with the production environment settings and keeping the <span class="java&#45;keyword">default</span> filename
 grails prod build&#45;standalone</pre></div><p class="paragraph"/><div class="code"><pre>// build a JAR with the 'demo' environment settings in the current directory with a custom name
-grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/>Required arguments: <em class="italic">none</em> .<p class="paragraph"/>Optional arguments:
+grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/>Required arguments:  <em class="italic">none</em>  .<p class="paragraph"/>Optional arguments:
 <ul class="star">
-<li><code>jarname</code> - The directory and name of the JAR file being built (defaults to <code>target/standalone.jar</code>)</li>
+<li><code>jarname</code> - The directory and name of the JAR file being built (defaults to <code>target/standalone-&#60;application version&#62;.jar</code>, e.g. <code>target/standalone-0.1.jar</code>)</li>
 <li><code>warfile</code> - The path to an existing war file to embed</li>
 </ul><p class="paragraph"/>
+            </div>
+        </td>
+        <td id="col2">
+            <div class="local clearfix">
+                <div class="local-title">
+                    <a href="../../guide/index.html" target="mainFrame">Quick Reference</a>
+                    <span class="toggle">(<a href="#" onclick="localToggle(); return false;">hide</a>)</span>
+                </div>
+                <div class="menu">
+                    
+                    <div class="menu-block">
+                        <h1 class="menu-title" onclick="toggleRef(nextElement(this))">Scripts</h1>
+                        <div class="menu-sub selected">
+                            
+                            
+                            <div class="menu-item"><a href="../../ref/Scripts/build-standalone.html">build-standalone</a>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<div id="footer">
     
+    
+</div>
+
+
+<script type="text/javascript" src="../../js/docs.js"></script>
+
+
 <script type="text/javascript">
 	var _gaq = _gaq || [];
 	_gaq.push(['_setAccount', 'UA-16219500-1']);
