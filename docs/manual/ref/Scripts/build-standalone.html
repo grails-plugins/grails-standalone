@@ -2,7 +2,7 @@
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <title>Grails Standalone Plugin 1.0.1</title>
+    <title>Grails Standalone Plugin 1.1</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" href="../../css/main.css" type="text/css" media="screen, print" title="Style" charset="utf-8"/>
     <link rel="stylesheet" href="../../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8"/>
@@ -44,7 +44,7 @@ function addJsClass(el) {
         
         
     </div>
-    <p>Runs a Grails application as a JAR file with an embedded Tomcat server</p>
+    <p>Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server</p>
 </div>
 
 
@@ -55,16 +55,17 @@ function addJsClass(el) {
 
                 <span id='toggle-col1' class="toggle">(<a href="#" onclick="localToggle(); return false;">Quick Reference</a>)</span>
 
-                <h1>build-standalone</h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Builds a runnable JAR file that contains the application and embeds Tomcat 7.<p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Builds a JAR file in the <code>target</code> directory called <code>standalone-&#60;application version&#62;.jar</code>. This can be run with <code>java -jar standalone-&#60;application version&#62;.jar</code> and can take optional arguments for the context path, port, etc.<p class="paragraph"/><blockquote class="warning">
+                <h1>build-standalone</h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Builds a runnable JAR file that contains the application and embeds Tomcat 7 or Jetty 7.<p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Builds a JAR file in the <code>target</code> directory called <code>standalone-&#60;application version&#62;.jar</code>. This can be run with <code>java -jar standalone-&#60;application version&#62;.jar</code> and can take optional arguments for the context path, port, etc.<p class="paragraph"/><blockquote class="warning">
 Since this script builds a war file if you don't specify an existing one, be sure to specify the correct environment to build with.
 </blockquote><p class="paragraph"/>Usage:
-<div class="code"><pre>grails &#91;environment&#93; build&#45;standalone &#91;jarname&#93; &#91;&#45;&#45;warfile&#93;</pre></div><p class="paragraph"/>Examples:
-<div class="code"><pre>// build a JAR with the production environment settings and keeping the <span class="java&#45;keyword">default</span> filename
-grails prod build&#45;standalone</pre></div><p class="paragraph"/><div class="code"><pre>// build a JAR with the 'demo' environment settings in the current directory with a custom name
-grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/>Required arguments:  <em class="italic">none</em>  .<p class="paragraph"/>Optional arguments:
+<div class="code"><pre>grails &#91;environment&#93; build&#45;standalone &#91;jarname&#93; &#91;&#45;&#45;jetty&#93; &#91;&#45;&#45;warfile=&#60;war file path&#62;&#93;</pre></div><p class="paragraph"/>Examples:
+<div class="code"><pre>// build a JAR with the production environment settings and keeping the <span class="java&#45;keyword">default</span> filename, using Tomcat
+grails prod build&#45;standalone</pre></div><p class="paragraph"/><div class="code"><pre>// build a JAR with the 'demo' environment settings in the current directory with a custom name, using Jetty
+grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar &#45;&#45;jetty</pre></div><p class="paragraph"/>Required arguments:  <em class="italic">none</em>  .<p class="paragraph"/>Optional arguments:
 <ul class="star">
 <li><code>jarname</code> - The directory and name of the JAR file being built (defaults to <code>target/standalone-&#60;application version&#62;.jar</code>, e.g. <code>target/standalone-0.1.jar</code>)</li>
 <li><code>warfile</code> - The path to an existing war file to embed</li>
+<li><code>jetty</code> - If specified use Jetty instead of Tomcat</li>
 </ul><p class="paragraph"/>
             </div>
         </td>

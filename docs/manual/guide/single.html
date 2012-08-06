@@ -2,7 +2,7 @@
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
-        <title>Grails Standalone Plugin 1.0.1</title>
+        <title>Grails Standalone Plugin 1.1</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" title="Style" charset="utf-8" />
         <link rel="stylesheet" href="../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8" />
@@ -40,7 +40,7 @@ function addJsClass(el) {
                 
                 
             </div>
-            <p>Runs a Grails application as a JAR file with an embedded Tomcat server</p>
+            <p>Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server</p>
         </div>
 
 
@@ -54,7 +54,7 @@ function addJsClass(el) {
                         <div class="project">
                             <h1>Grails Standalone Plugin - Reference Documentation</h1>
                             <p><strong>Authors:</strong> Burt Beckwith</p>
-                            <p><strong>Version:</strong> 1.0.1</p>
+                            <p><strong>Version:</strong> 1.1</p>
                             
                         </div>
 
@@ -72,8 +72,12 @@ function addJsClass(el) {
                         
 
 <h1 id="1 Introduction to the Standalone Plugin">1 Introduction to the Standalone Plugin</h1>
-The Standalone plugin builds a runnable JAR file with an embedded war built from your application and an embedded Tomcat 7 instance. This allows you to build a single archive that can be run on any computer with Java 5 or higher by running <code>java -jar standalone.jar</code>. This can be convenient for demos or even very lightweight installs of low-traffic Grails applications.<p class="paragraph"/><h4>Release History</h4>
+The Standalone plugin builds a runnable JAR file with an embedded war built from your application and an embedded Tomcat 7 or Jetty 7 instance. This allows you to build a single archive that can be run on any computer with Java 5 or higher by running <code>java -jar standalone.jar</code>. This can be convenient for demos or even very lightweight installs of low-traffic Grails applications.<p class="paragraph"/><h4>Release History</h4>
 <ul class="star">
+<li>August 6, 2012</li>
+<ul class="star">
+<li>1.1 release</li>
+</ul>
 <li>August 4, 2012</li>
 <ul class="star">
 <li>1.0.1 release</li>
@@ -85,7 +89,7 @@ The Standalone plugin builds a runnable JAR file with an embedded war built from
 
 
 <h1 id="2 Running the application">2 Running the application</h1>
-<h4>Building the jar</h4><p class="paragraph"/>The first step is to run the <a href="../ref/Scripts/build-standalone.html" class="Scripts">build-standalone</a> script, e.g.<p class="paragraph"/><div class="code"><pre>grails prod build&#45;standalone</pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/><h4>Running the server</h4><p class="paragraph"/>As long as the target machine has Java 5 or higher available, all you need to do next is run<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar</pre></div><p class="paragraph"/>There are a few arguments you can pass to customize how the application runs:
+<h4>Building the jar</h4><p class="paragraph"/>The first step is to run the <a href="../ref/Scripts/build-standalone.html" class="Scripts">build-standalone</a> script, e.g.<p class="paragraph"/><div class="code"><pre>grails prod build&#45;standalone</pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/>If you pass the &#45;&#45;jetty flag the embedded server will be Jetty instead of the default Tomcat, for example<p class="paragraph"/><div class="code"><pre>grails prod build&#45;standalone</pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar &#45;&#45;jetty</pre></div><p class="paragraph"/><h4>Running the server</h4><p class="paragraph"/>As long as the target machine has Java 5 or higher available, all you need to do next is run<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar</pre></div><p class="paragraph"/>There are a few arguments you can pass to customize how the application runs:
 <ol>
 <li>context path; if not specified it defaults to "" (the "root" context)</li>
 <li>host name; if not specified it defaults to "localhost"</li>
