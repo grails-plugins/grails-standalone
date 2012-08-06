@@ -105,7 +105,7 @@ buildJar = { File workDir, File jar, File warfile = null ->
 		ant.unjar src: jarPath, dest: workDir
 	}
 
-	jar.parentFile.mkdirs()
+	jar.canonicalFile.parentFile.mkdirs()
 	ant.jar(destfile: jar) {
 		fileset dir: workDir
 		if (warfile) {
