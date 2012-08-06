@@ -15,7 +15,7 @@ grails -Dgrails.env=demo build-standalone our_cool_demo.jar
 If you pass the \-\-jetty flag the embedded server will be Jetty instead of the default Tomcat, for example
 
 {code:java}
-grails prod build-standalone
+grails prod build-standalone --jetty
 {code}
 
 or
