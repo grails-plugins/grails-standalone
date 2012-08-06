@@ -2,7 +2,7 @@ h1. build-standalone
 
 h2. Purpose
 
-Builds a runnable JAR file that contains the application and embeds Tomcat 7.
+Builds a runnable JAR file that contains the application and embeds Tomcat 7 or Jetty 7.
 
 h2. Description
 
@@ -14,18 +14,18 @@ Since this script builds a war file if you don't specify an existing one, be sur
 
 Usage:
 {code:java}
-grails [environment] build-standalone [jarname] [--warfile]
+grails [environment] build-standalone [jarname] [--jetty] [--warfile=<war file path>]
 {code}
 
 Examples:
 {code:java}
-// build a JAR with the production environment settings and keeping the default filename
+// build a JAR with the production environment settings and keeping the default filename, using Tomcat
 grails prod build-standalone
 {code}
 
 {code:java}
-// build a JAR with the 'demo' environment settings in the current directory with a custom name
-grails -Dgrails.env=demo build-standalone our_cool_demo.jar
+// build a JAR with the 'demo' environment settings in the current directory with a custom name, using Jetty
+grails -Dgrails.env=demo build-standalone our_cool_demo.jar --jetty
 {code}
 
 Required arguments: _none_ .
@@ -34,3 +34,4 @@ Optional arguments:
 
 * @jarname@ - The directory and name of the JAR file being built (defaults to @target/standalone-<application version>.jar@, e.g. @target/standalone-0.1.jar@)
 * @warfile@ - The path to an existing war file to embed
+* @jetty@ - If specified use Jetty instead of Tomcat

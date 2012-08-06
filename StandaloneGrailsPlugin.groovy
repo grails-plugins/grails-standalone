@@ -25,7 +25,7 @@ class StandaloneGrailsPlugin {
 	String author = 'Burt Beckwith'
 	String authorEmail = 'beckwithb@vmware.com'
 	String title = 'Standalone App Runner'
-	String description = 'Runs a Grails application as a JAR file with an embedded Tomcat server'
+	String description = 'Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server'
 	String documentation = 'http://grails.org/plugin/standalone'
 
 	String license = 'APACHE'
