@@ -1,6 +1,8 @@
 The Standalone plugin builds a runnable JAR file with an embedded war built from your application and an embedded Tomcat 7 or Jetty 7 instance. This allows you to build a single archive that can be run on any computer with Java 5 or higher by running @java -jar standalone.jar@. This can be convenient for demos or even very lightweight installs of low-traffic Grails applications.
 
 h4. Release History
+* August 6, 2012
+** 1.1 release
 * August 4, 2012
 ** 1.0.1 release
 * July 8, 2011
