@@ -26,7 +26,7 @@ class StandaloneGrailsPlugin {
 	String authorEmail = 'beckwithb@vmware.com'
 	String title = 'Standalone App Runner'
 	String description = 'Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server'
-	String documentation = 'http://grails.org/plugin/standalone'
+	String documentation = 'http://grails-plugins.github.com/grails-standalone/'
 
 	String license = 'APACHE'
 	def organization = [name: 'SpringSource', url: 'http://www.springsource.org/']

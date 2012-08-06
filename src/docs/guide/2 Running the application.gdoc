@@ -12,6 +12,18 @@ or
 grails -Dgrails.env=demo build-standalone our_cool_demo.jar
 {code}
 
+If you pass the \-\-jetty flag the embedded server will be Jetty instead of the default Tomcat, for example
+
+{code:java}
+grails prod build-standalone
+{code}
+
+or
+
+{code:java}
+grails -Dgrails.env=demo build-standalone our_cool_demo.jar --jetty
+{code}
+
 h4. Running the server
 
 As long as the target machine has Java 5 or higher available, all you need to do next is run
