@@ -15,9 +15,11 @@
 
 import grails.util.BuildSettings
 import grails.util.GrailsUtil
+import grails.util.PluginBuildSettings
 
 import org.apache.ivy.core.report.ResolveReport
 import org.codehaus.groovy.grails.resolve.IvyDependencyManager
+import org.springframework.util.FileCopyUtils
 
 /**
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
@@ -46,12 +48,16 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		String jarname = argsMap.params[0]
 		File jar = jarname ? new File(jarname).absoluteFile : new File(workDir.parentFile, 'standalone-' + grailsAppVersion + '.jar').absoluteFile
 
+		boolean jetty = argsMap.jetty
+
+		event 'StatusUpdate', ["Building standalone jar $jar.path for ${jetty ? 'Jetty' : 'Tomcat'}"]
+
 		File warfile
 		if (argsMap.warfile) {
 			warfile = new File(argsMap.warfile).absoluteFile
 			if (warfile.exists()) {
 				println "Using war file $argsMap.warfile"
-				if (!buildJar(workDir, jar, warfile)) {
+				if (!buildJar(workDir, jar, jetty, warfile)) {
 					return
 				}
 			}
@@ -61,7 +67,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		}
 		else {
 			warfile = buildWar(workDir)
-			if (!buildJar(workDir, jar)) {
+			if (!buildJar(workDir, jar, jetty)) {
 				return
 			}
 		}
@@ -90,29 +96,45 @@ buildWar = { File workDir ->
 	warfile
 }
 
-buildJar = { File workDir, File jar, File warfile = null ->
+buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
 
-	List<String> dependencyJars = resolveJars(config.grails.plugin.standalone)
+	List<String> dependencyJars = resolveJars(jetty, config.grails.plugin.standalone)
 
 	ant.path(id: 'standalone.cp') { dependencyJars.each { pathelement(path: it) } }
 
 	// compile Launcher.java so it's directly in the JAR
-	ant.javac srcdir: new File(standalonePluginDir, 'src/runtime'), destdir: workDir,
-	          debug: true, source: '1.5', target: '1.5', listfiles: true,
-	          classpathref: 'standalone.cp', includeAntRuntime: false
+	ant.javac(destdir: workDir, debug: true, source: '1.5', target: '1.5', listfiles: true,
+	          classpathref: 'standalone.cp', includeAntRuntime: false) {
+		src(path: new File(standalonePluginDir, 'src/java').path)
+		src(path: new File(standalonePluginDir, 'src/runtime').path)
+		include(name: 'grails/plugin/standalone/AbstractLauncher.java')
+		if (jetty) {
+			include(name: 'grails/plugin/standalone/JettyLauncher.java')
+		}
+		else {
+			include(name: 'grails/plugin/standalone/Launcher.java')
+		}
+	}
 
 	for (jarPath in dependencyJars) {
 		ant.unjar src: jarPath, dest: workDir
 	}
 
-	jar.parentFile.mkdirs()
+	if (jetty) {
+		// Jetty requires a 'defaults descriptor' on the filesystem
+		File webDefaults = new File(workDir, 'webdefault.xml')
+		File pluginDir = new PluginBuildSettings(buildSettings).getPluginDirForName('standalone').file
+		FileCopyUtils.copy new File(pluginDir, 'grails-app/conf/webdefault.xml'), webDefaults
+	}
+
+	jar.canonicalFile.parentFile.mkdirs()
 	ant.jar(destfile: jar) {
 		fileset dir: workDir
 		if (warfile) {
 			zipfileset file: warfile, fullpath: 'embedded.war'
 		}
 		manifest {
-			attribute name: 'Main-Class', value: 'grails.plugin.standalone.Launcher'
+			attribute name: 'Main-Class', value: jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher'
 		}
 	}
 
@@ -132,19 +154,15 @@ removeTomcatJarsFromWar = { File workDir, File warfile ->
 	expandedDir.deleteDir()
 }
 
-resolveJars = { standaloneConfig ->
-
-	String tomcatVersion = '7.0.29'
+resolveJars = { boolean jetty, standaloneConfig ->
 
 	def deps = ['org.eclipse.jdt.core.compiler:ecj:3.7.1']
 
-	for (name in ['tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina',
-	              'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util']) {
-		deps << 'org.apache.tomcat:' + name + ':' + tomcatVersion
+	if (jetty) {
+		deps.addAll calculateJettyDependencies()
 	}
-
-	for (name in ['tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j']) {
-		deps << 'org.apache.tomcat.embed:' + name + ':' + tomcatVersion
+	else {
+		deps.addAll calculateTomcatDependencies()
 	}
 
 	if (standaloneConfig.extraDependencies instanceof Collection) {
@@ -177,6 +195,29 @@ resolveJars = { standaloneConfig ->
 	}
 
 	paths
+}
+
+calculateJettyDependencies = { ->
+	String jettyVersion = '7.6.0.v20120127'
+	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion]
+}
+
+calculateTomcatDependencies = { ->
+
+	String tomcatVersion = '7.0.29'
+
+	def deps = []
+
+	for (name in ['tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina',
+	              'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util']) {
+		deps << 'org.apache.tomcat:' + name + ':' + tomcatVersion
+	}
+
+	for (name in ['tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j']) {
+		deps << 'org.apache.tomcat.embed:' + name + ':' + tomcatVersion
+	}
+
+	deps
 }
 
 setDefaultTarget buildStandalone
