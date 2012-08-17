@@ -198,8 +198,11 @@ resolveJars = { boolean jetty, standaloneConfig ->
 }
 
 calculateJettyDependencies = { ->
+	String servletVersion = buildSettings.servletVersion
+	String servletApiDep = servletVersion.startsWith('3') ? 'javax.servlet:javax.servlet-api:3.0.1' : 'javax.servlet:servlet-api:' + servletVersion
 	String jettyVersion = '7.6.0.v20120127'
-	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion]
+	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion,
+	 servletApiDep]
 }
 
 calculateTomcatDependencies = { ->
