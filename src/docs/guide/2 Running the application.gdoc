@@ -46,19 +46,23 @@ As long as the target machine has Java 5 or higher available, all you need to do
 java -jar /path/to/jar_name.jar
 {code}
 
-There are a few arguments you can pass to customize how the application runs:
-# context path; if not specified it defaults to "" (the "root" context)
-# host name; if not specified it defaults to "localhost"
-# HTTP port; if not specified it defaults to 8080
-# HTTPS port; there is no default for this, but if specified you can also specify the keystore path and password
-# SSL keystore path; if not specified a temporary keystore will be generated
-# SSL keystore password; required if an existing keystore path is specified
+There are several arguments you can pass to customize how the application runs, using @name=value@ syntax:
+# @context@, the context name; if not specified it defaults to "" (the "root" context)
+# @host@, the host name; if not specified it defaults to "localhost"
+# @port@, the HTTP port; if not specified it defaults to 8080
+# @httpsPort@, the HTTPS port; there is no default for this, but if specified you can also specify the keystore path and password
+# @keystorePath@ or @javax.net.ssl.keyStore@, the SSL keystore path; if not specified a temporary keystore will be generated
+# @keystorePassword@ or @javax.net.ssl.keyStorePassword@, the SSL keystore password; required if an existing keystore path is specified
+# @truststorePath@ or @javax.net.ssl.trustStore@, the SSL truststore path
+# @trustStorePassword@ or @javax.net.ssl.trustStorePassword@, the SSL truststore password; required if an existing truststore path is specified
+# @enableClientAuth@, whether to enable client auth, defaults to false
+# @workDir@, the working directory where the war file is extracted, defaults to the system temp directory
+# @enableCompression@, whether to enable compression (Tomcat only)
+# @compressableMimeTypes@, a comma separated list of MIME types for which HTTP compression may be used; defaults to the Tomcat defaults, @"text/html,text/xml,text/plain"@
+# @sessionTimeout@, the session timeout in minutes; defaults to 30
+# @nio@ or @tomcat.nio@, whether to use NIO; defaults to true
 
-So the full syntax would be:
-{code:java}
-java -jar [jar path] [context path] [host name] [HTTP port] [HTTPS port] \
-          [SSL keystore path] [SSL keystore password]
-{code}
+In addition, if you specify a value that is the name of a system property (e.g. 'home.dir'), the system property value will be used.
 
 For example running
 
@@ -69,13 +73,13 @@ java -jar /path/to/jar_name.jar
 will start a server at @http://localhost:8080/@ and
 
 {code:java}
-java -jar /path/to/jar_name.jar cool_demo localhost 9000
+java -jar /path/to/jar_name.jar context=cool_demo port=9000
 {code}
 
 will start a server at @http://localhost:9000/cool_demo@
 
 {code:java}
-java -jar /path/to/jar_name.jar cool_demo localhost 8080 8443
+java -jar /path/to/jar_name.jar context=cool_demo port=8080 httpsPort=8443
 {code}
 
 will start a server at @http://localhost:8080/cool_demo@ and will also support SSL at @https://localhost:8443/cool_demo@

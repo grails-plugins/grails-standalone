@@ -5,6 +5,7 @@
 	<classpathentry kind="src" path="src/runtime"/>
 	<classpathentry kind="src" path="src/docs"/>
 	<classpathentry kind="src" path="scripts"/>
+	<classpathentry kind="src" path="test/unit"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="src" path=".link_to_grails_plugins/release-2.2.1/src/groovy">

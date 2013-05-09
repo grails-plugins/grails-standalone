@@ -21,9 +21,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import javax.servlet.ServletException;
 
 /**
  * Abstract base class for the Tomcat and Jetty launchers.
@@ -32,15 +38,24 @@ import java.util.zip.ZipFile;
  */
 public abstract class AbstractLauncher {
 
-	private static final int BUFFER_SIZE = 4096;
+	protected static final int BUFFER_SIZE = 4096;
 
-	protected File extractWar() throws IOException {
-		InputStream embeddedWarfile = getClass().getClassLoader().getResourceAsStream("embedded.war");
+	protected static final List<String> SUPPORTED_ARGS = Arrays.asList(
+			"context", "host", "port", "httpsPort", "keystorePath", "javax.net.ssl.keyStore",
+			"keystorePassword", "javax.net.ssl.keyStorePassword", "truststorePath", "javax.net.ssl.trustStore",
+			"trustStorePassword", "javax.net.ssl.trustStorePassword", "enableClientAuth", "workDir",
+			"enableCompression", "compressableMimeTypes", "sessionTimeout", "nio", "tomcat.nio");
+
+	protected File extractWar(InputStream embeddedWarfile) throws IOException {
 		File tempWarfile = File.createTempFile("embedded", ".war").getAbsoluteFile();
 		tempWarfile.getParentFile().mkdirs();
 		tempWarfile.deleteOnExit();
 		copy(embeddedWarfile, new FileOutputStream(tempWarfile));
 		return explode(tempWarfile);
+	}
+
+	protected File extractWar() throws IOException {
+		return extractWar(getClass().getClassLoader().getResourceAsStream("embedded.war"));
 	}
 
 	protected File explode(File war) throws IOException {
@@ -84,22 +99,68 @@ public abstract class AbstractLauncher {
 		}
 	}
 
-	protected abstract void start(File exploded, String[] args) throws IOException;
+	protected abstract void start(File exploded, String[] args) throws IOException, ServletException;
 
 	protected boolean hasLength(String s) {
 		return s != null && s.trim().length() > 0;
 	}
 
-	protected int argToNumber(String[] args, int i, int orDefault) {
-		if (args.length > i) {
-			try {
-				return Integer.parseInt(args[i]);
+	protected Map<String, String> argsToMap(String[] args) {
+		Map<String, String> map = new HashMap<String, String>();
+		for (String arg : args) {
+			int index = arg.indexOf('=');
+			if (index == -1) {
+				System.err.println("Warning, arguments must be specified in name=value format, ignoring argument '" + arg + "'");
+				continue;
 			}
-			catch (NumberFormatException e) {
-				return orDefault;
+			String name = arg.substring(0, index).trim();
+			if (!SUPPORTED_ARGS.contains(name)) {
+				System.err.println("Warning, the specified argument '" + name + "' is not supported, ignoring");
+				continue;
+			}
+
+			String value = arg.substring(index + 1).trim();
+			map.put(name, value);
+		}
+		return map;
+	}
+
+	protected String getArg(Map<String, String> args, String name) {
+		return getArg(args, name, null);
+	}
+
+	protected String getArg(Map<String, String> args, String name, String defaultIfMissing) {
+		String value = args.get(name);
+		if (value == null) {
+			if (System.getProperties().containsKey(name)) {
+				value = System.getProperty(name);
 			}
 		}
-		return orDefault;
+		if (value == null) {
+			value = defaultIfMissing;
+		}
+		else if (System.getProperties().containsKey(value)) {
+			value = System.getProperty(value);
+		}
+		return value;
+	}
+
+	protected int getIntArg(Map<String, String> args, String name, int defaultIfMissing) {
+		String value = args.get(name);
+		if (value == null) {
+			return defaultIfMissing;
+		}
+
+		try {
+			return Integer.parseInt(value);
+		}
+		catch (NumberFormatException e) {
+			return defaultIfMissing;
+		}
+	}
+
+	protected boolean getBooleanArg(Map<String, String> args, String name, boolean defaultIfMissing) {
+		return "true".equalsIgnoreCase(getArg(args, name, String.valueOf(defaultIfMissing)));
 	}
 
 	// from org.springframework.util.FileCopyUtils.copy()
