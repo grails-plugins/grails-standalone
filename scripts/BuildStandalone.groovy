@@ -1,4 +1,4 @@
-/* Copyright 2011-2012 SpringSource
+/* Copyright 2011-2013 SpringSource
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -202,8 +202,7 @@ calculateJettyDependencies = { ->
 	String servletVersion = buildSettings.servletVersion
 	String servletApiDep = servletVersion.startsWith('3') ? 'javax.servlet:javax.servlet-api:3.0.1' : 'javax.servlet:servlet-api:' + servletVersion
 	String jettyVersion = '7.6.0.v20120127'
-	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion,
-	 servletApiDep]
+	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion, servletApiDep]
 }
 
 calculateTomcatDependencies = { ->
