@@ -2,7 +2,7 @@
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <title>2 Running the application 1.1.1</title>
+    <title>2 Running the application 1.2</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" title="Style" charset="utf-8"/>
     <link rel="stylesheet" href="../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8"/>
@@ -66,7 +66,7 @@ function addJsClass() {
 
                     <p><strong>Authors:</strong> Burt Beckwith</p>
 
-                    <p><strong>Version:</strong> 1.1.1</p>
+                    <p><strong>Version:</strong> 1.2</p>
 
                     
                 </div>
@@ -76,16 +76,23 @@ function addJsClass() {
                 
 
 <h1 id="2 Running the application">2 Running the application</h1>
-<h4>Building the jar</h4><p class="paragraph"/>The first step is to run the <a href="../ref/Scripts/build-standalone.html" class="Scripts">build-standalone</a> script, e.g.<p class="paragraph"/><div class="code"><pre>grails prod build&#45;standalone</pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/>If you pass the &#45;&#45;jetty flag the embedded server will be Jetty instead of the default Tomcat, for example<p class="paragraph"/><div class="code"><pre>grails prod build&#45;standalone &#45;&#45;jetty</pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar &#45;&#45;jetty</pre></div><p class="paragraph"/><h4>Running the server</h4><p class="paragraph"/>As long as the target machine has Java 5 or higher available, all you need to do next is run<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar</pre></div><p class="paragraph"/>There are a few arguments you can pass to customize how the application runs:
+<h3>Building the jar</h3><p class="paragraph"/>The first step is to run the <a href="../ref/Scripts/build-standalone.html" class="Scripts">build-standalone</a> script, e.g.<p class="paragraph"/><div class="code"><pre>grails prod build&#45;standalone</pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</pre></div><p class="paragraph"/>If you pass the &#45;&#45;jetty flag the embedded server will be Jetty instead of the default Tomcat, for example<p class="paragraph"/><div class="code"><pre>grails prod build&#45;standalone &#45;&#45;jetty</pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar &#45;&#45;jetty</pre></div><p class="paragraph"/>You can change the default embedded server to Jetty by adding this to BuildConfig.groovy:<p class="paragraph"/><div class="code"><pre>grails.plugin.standalone.useJetty = <span class="java&#45;keyword">true</span></pre></div><p class="paragraph"/>If you've set Jetty to the default, you can force a Tomcat build later with the &#45;&#45;tomcat flag:<p class="paragraph"/><div class="code"><pre>grails build&#45;standalone &#45;&#45;tomcat</pre></div><p class="paragraph"/><h4>Build Configuration</h4><p class="paragraph"/>There are several configuration settings that you can use to change how the jar is built; add any of these to BuildConfig.groovy to override the defaults:<p class="paragraph"/><table class="wiki-table" cellpadding="0" cellspacing="0" border="0"><tr><th><strong class="bold">Property</strong></th><th><strong class="bold">Default Value</strong></th><th><strong class="bold">Meaning</strong></th></tr><tr class="table-odd"><td>grails.plugin.standalone. ecjDependency</td><td>'org.eclipse.jdt.core.compiler:ecj:3.7.1'</td><td>the dependency config for the ECJ jar</td></tr><tr class="table-even"><td>grails.plugin.standalone. extraDependencies</td><td>none</td><td>extra dependency jars to include in the standalone jar</td></tr><tr class="table-odd"><td>grails.plugin.standalone. ivyLogLevel</td><td>'warn'</td><td>the Ivy log level</td></tr><tr class="table-even"><td>grails.plugin.standalone. jettyServletApiDependency</td><td>'javax.servlet:servlet-api:2.5' or 'javax.servlet:javax.servlet-api:3.0.1'</td><td>the Jetty servlet API jar dependency</td></tr><tr class="table-odd"><td>grails.plugin.standalone. jettyVersion</td><td>'7.6.0.v20120127'</td><td>the version of Jetty to use</td></tr><tr class="table-even"><td>grails.plugin.standalone. tomcatVersion</td><td>'7.0.39'</td><td>the version of Tomcat to use</td></tr><tr class="table-odd"><td>grails.plugin.standalone. tomcatDependencies</td><td>'tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina', 'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util'</td><td>the Tomcat jars to use</td></tr><tr class="table-even"><td>grails.plugin.standalone. tomcatEmbedDependencies</td><td>'tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j'</td><td>the Tomcat embed jars to use</td></tr></table><p class="paragraph"/><h3>Running the server</h3><p class="paragraph"/>As long as the target machine has Java 5 or higher available, all you need to do next is run<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar</pre></div><p class="paragraph"/>There are several arguments you can pass to customize how the application runs, using <code>name=value</code> syntax:
 <ol>
-<li>context path; if not specified it defaults to "" (the "root" context)</li>
-<li>host name; if not specified it defaults to "localhost"</li>
-<li>HTTP port; if not specified it defaults to 8080</li>
-<li>HTTPS port; there is no default for this, but if specified you can also specify the keystore path and password</li>
-<li>SSL keystore path; if not specified a temporary keystore will be generated</li>
-<li>SSL keystore password; required if an existing keystore path is specified</li>
-</ol><p class="paragraph"/>So the full syntax would be:
-<div class="code"><pre>java &#45;jar &#91;jar path&#93; &#91;context path&#93; &#91;host name&#93; &#91;HTTP port&#93; &#91;HTTPS port&#93; &#10;          &#91;SSL keystore path&#93; &#91;SSL keystore password&#93;</pre></div><p class="paragraph"/>For example running<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar</pre></div><p class="paragraph"/>will start a server at <code>http://localhost:8080/</code> and<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar cool_demo localhost 9000</pre></div><p class="paragraph"/>will start a server at <code>http://localhost:9000/cool_demo</code><p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar cool_demo localhost 8080 8443</pre></div><p class="paragraph"/>will start a server at <code>http://localhost:8080/cool_demo</code> and will also support SSL at <code>https://localhost:8443/cool_demo</code>
+<li><code>context</code>, the context name; if not specified it defaults to "" (the "root" context)</li>
+<li><code>host</code>, the host name; if not specified it defaults to "localhost"</li>
+<li><code>port</code>, the HTTP port; if not specified it defaults to 8080</li>
+<li><code>httpsPort</code>, the HTTPS port; there is no default for this, but if specified you can also specify the keystore path and password</li>
+<li><code>keystorePath</code> or <code>javax.net.ssl.keyStore</code>, the SSL keystore path; if not specified a temporary keystore will be generated</li>
+<li><code>keystorePassword</code> or <code>javax.net.ssl.keyStorePassword</code>, the SSL keystore password; required if an existing keystore path is specified</li>
+<li><code>truststorePath</code> or <code>javax.net.ssl.trustStore</code>, the SSL truststore path</li>
+<li><code>trustStorePassword</code> or <code>javax.net.ssl.trustStorePassword</code>, the SSL truststore password; required if an existing truststore path is specified</li>
+<li><code>enableClientAuth</code>, whether to enable client auth, defaults to false</li>
+<li><code>workDir</code>, the working directory where the war file is extracted, defaults to the system temp directory</li>
+<li><code>enableCompression</code>, whether to enable compression (Tomcat only)</li>
+<li><code>compressableMimeTypes</code>, a comma separated list of MIME types for which HTTP compression may be used; defaults to the Tomcat defaults, <code>"text/html,text/xml,text/plain"</code></li>
+<li><code>sessionTimeout</code>, the session timeout in minutes; defaults to 30</li>
+<li><code>nio</code> or <code>tomcat.nio</code>, whether to use NIO; defaults to true</li>
+</ol><p class="paragraph"/>In addition, if you specify a value that is the name of a system property (e.g. 'home.dir'), the system property value will be used.<p class="paragraph"/>For example running<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar</pre></div><p class="paragraph"/>will start a server at <code>http://localhost:8080/</code> and<p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar context=cool_demo port=9000</pre></div><p class="paragraph"/>will start a server at <code>http://localhost:9000/cool_demo</code><p class="paragraph"/><div class="code"><pre>java &#45;jar /path/to/jar_name.jar context=cool_demo port=8080 httpsPort=8443</pre></div><p class="paragraph"/>will start a server at <code>http://localhost:8080/cool_demo</code> and will also support SSL at <code>https://localhost:8443/cool_demo</code>
 
 
 
