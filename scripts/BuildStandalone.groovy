@@ -48,8 +48,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		String jarname = argsMap.params[0]
 		File jar = jarname ? new File(jarname).absoluteFile : new File(workDir.parentFile, 'standalone-' + grailsAppVersion + '.jar').absoluteFile
 
-    boolean jetty = (argsMap.jetty || config.grails.plugins.standalone.useJetty) && !argsMap.tomcat
-
+		boolean jetty = (argsMap.jetty || buildSettings.config.grails.plugin.standalone.useJetty) && !argsMap.tomcat
 
 		event 'StatusUpdate', ["Building standalone jar $jar.path for ${jetty ? 'Jetty' : 'Tomcat'}"]
 
