@@ -28,7 +28,7 @@ import org.springframework.util.FileCopyUtils
 includeTargets << grailsScript('_GrailsWar')
 
 target(buildStandalone: 'Build a standalone app with embedded server') {
-	depends configureProxy, compile, createConfig, loadPlugins
+	depends configureProxy, compile, loadPlugins
 
 	try {
 		if ('development'.equals(grailsEnv) && !argsMap.warfile) {
@@ -99,7 +99,7 @@ buildWar = { File workDir ->
 
 buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
 
-	List<String> dependencyJars = resolveJars(jetty, config.grails.plugin.standalone)
+	List<String> dependencyJars = resolveJars(jetty, buildSettings.config.grails.plugin.standalone)
 
 	ant.path(id: 'standalone.cp') { dependencyJars.each { pathelement(path: it) } }
 
@@ -157,13 +157,13 @@ removeTomcatJarsFromWar = { File workDir, File warfile ->
 
 resolveJars = { boolean jetty, standaloneConfig ->
 
-	def deps = ['org.eclipse.jdt.core.compiler:ecj:3.7.1']
+	def deps = [standaloneConfig.ecjDependency ?: 'org.eclipse.jdt.core.compiler:ecj:3.7.1']
 
 	if (jetty) {
-		deps.addAll calculateJettyDependencies()
+		deps.addAll calculateJettyDependencies(standaloneConfig)
 	}
 	else {
-		deps.addAll calculateTomcatDependencies()
+		deps.addAll calculateTomcatDependencies(standaloneConfig)
 	}
 
 	if (standaloneConfig.extraDependencies instanceof Collection) {
@@ -198,25 +198,28 @@ resolveJars = { boolean jetty, standaloneConfig ->
 	paths
 }
 
-calculateJettyDependencies = { ->
+calculateJettyDependencies = { standaloneConfig ->
 	String servletVersion = buildSettings.servletVersion
-	String servletApiDep = servletVersion.startsWith('3') ? 'javax.servlet:javax.servlet-api:3.0.1' : 'javax.servlet:servlet-api:' + servletVersion
-	String jettyVersion = '7.6.0.v20120127'
+	String servletApiDep = standaloneConfig.jettyServletApiDependency ?:
+		servletVersion.startsWith('3') ? 'javax.servlet:javax.servlet-api:3.0.1' : 'javax.servlet:servlet-api:' + servletVersion
+	String jettyVersion = standaloneConfig.jettyVersion ?: '7.6.0.v20120127'
 	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion, servletApiDep]
 }
 
-calculateTomcatDependencies = { ->
+calculateTomcatDependencies = { standaloneConfig ->
 
-	String tomcatVersion = '7.0.29'
+	String tomcatVersion = standaloneConfig.tomcatVersion ?: '7.0.39'
 
 	def deps = []
 
-	for (name in ['tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina',
-	              'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util']) {
+	def defaultTomcatDeps = ['tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina',
+	                         'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util']
+	for (name in (standaloneConfig.tomcatDependencies ?: defaultTomcatDeps)) {
 		deps << 'org.apache.tomcat:' + name + ':' + tomcatVersion
 	}
 
-	for (name in ['tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j']) {
+	def defaultTomcatEmbedDeps = ['tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j']
+	for (name in (standaloneConfig.tomcatEmbedDependencies ?: defaultTomcatEmbedDeps)) {
 		deps << 'org.apache.tomcat.embed:' + name + ':' + tomcatVersion
 	}
 
