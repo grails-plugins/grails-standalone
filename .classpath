@@ -2,20 +2,23 @@
 <classpath>
 	<classpathentry kind="src" path="grails-app/conf"/>
 	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="src" path="src/runtime"/>
 	<classpathentry kind="src" path="src/docs"/>
 	<classpathentry kind="src" path="scripts"/>
+	<classpathentry kind="src" path="test/unit"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="src" path=".link_to_grails_plugins/release-2.0.4/src/groovy">
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
+	<classpathentry kind="src" path=".link_to_grails_plugins/release-2.2.1/src/groovy">
 		<attributes>
 			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path=".link_to_grails_plugins/release-2.0.4/src/java">
+	<classpathentry kind="src" path=".link_to_grails_plugins/release-2.2.1/src/java">
 		<attributes>
 			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path=".link_to_grails_plugins/rest-client-builder-1.0.2/src/groovy">
+	<classpathentry kind="src" path=".link_to_grails_plugins/rest-client-builder-1.0.3/src/groovy">
 		<attributes>
 			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
 		</attributes>

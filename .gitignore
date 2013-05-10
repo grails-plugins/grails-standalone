@@ -3,3 +3,4 @@ stacktrace.log
 /grails-standalone-*.zip
 /plugin.xml
 /.settings
+web-app

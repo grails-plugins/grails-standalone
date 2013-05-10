@@ -1,4 +1,4 @@
-/* Copyright 2011-2012 SpringSource
+/* Copyright 2011-2013 SpringSource
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,60 +17,94 @@ package grails.plugin.standalone;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Map;
 
+import javax.servlet.ServletException;
+
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.LifecycleState;
+import org.apache.catalina.Server;
 import org.apache.catalina.connector.Connector;
+import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.CrawlerSessionManagerValve;
 import org.apache.coyote.http11.Http11NioProtocol;
 
 /**
- * Main class; extracts the embedded war and starts Tomcat. Inlines some utility methods since
- * the classpath is limited. Based on org.grails.plugins.tomcat.IsolatedTomcat and
+ * Main class; extracts the embedded war and starts Tomcat. Inlines some utility
+ * methods since the classpath is limited. Based on
+ * org.grails.plugins.tomcat.IsolatedTomcat and
  * org.grails.plugins.tomcat.IsolatedWarTomcatServer.
+ *
+ * Also borrowed some code from https://github.com/jsimone/webapp-runner
  *
  * @author Burt Beckwith
  */
 public class Launcher extends AbstractLauncher {
 
+	protected Tomcat tomcat = new Tomcat();
+	protected Context context;
+
 	/**
 	 * Start the server.
 	 *
-	 * @param args optional; 1st is context path, 2nd is host, 3rd is http port,
-	 * 4th is SSL port, 5th is SSL keystore path, 6th is keystore password
-	 * @throws IOException
+	 * @param args
+	 *           optional, these are supported<br/>
+	 *           <ul>
+	 *           <li>workDir, defaults to 'java.io.tmpdir' system property</li>
+	 *           <li>context, defaults to ''</li>
+	 *           <li>host, defaults to 'localhost'</li>
+	 *           <li>port, defaults to 8080</li>
+	 *           <li>httpsPort, no default</li>
+	 *           <li>keystorePath or javax.net.ssl.keyStore, no default</li>
+	 *           <li>keystorePassword or javax.net.ssl.keyStorePassword, no default</li>
+	 *           <li>truststorePath or javax.net.ssl.trustStore, no default</li>
+	 *           <li>trustStorePassword or javax.net.ssl.trustStorePassword, no default</li>
+	 *           <li>enableCompression, defaults to true</li>
+	 *           <li>compressableMimeTypes defaults to ''</li>
+	 *           <li>enableClientAuth defaults to false</li>
+	 *           <li>sessionTimeout, defaults to 30 (minutes)</li>
+	 *           <li>nio or tomcat.nio, defaults to true</li>
+	 *           </ul>
+	 *           In addition, if you specify a value that is the name of a system
+	 *           property (e.g. 'home.dir'), the system property value will be used.
 	 */
-	public static void main(String[] args) throws IOException {
-		final Launcher launcher = new Launcher();
-		final File exploded = launcher.extractWar();
-		launcher.deleteExplodedOnShutdown(exploded);
-		launcher.start(exploded, args);
+	public static void main(String[] args) {
+		try {
+			final Launcher launcher = new Launcher();
+			final File exploded = launcher.extractWar();
+			launcher.deleteExplodedOnShutdown(exploded);
+			launcher.start(exploded, args);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Error loading Tomcat: " + e.getMessage());
+			System.exit(1);
+		}
 	}
 
 	@Override
-	protected void start(File exploded, String[] args) throws IOException {
+	protected void start(File exploded, String[] args) throws IOException, ServletException {
 
-		File workDir = new File(System.getProperty("java.io.tmpdir"));
-		String contextPath = "";
-		if (args.length > 0) {
-			contextPath = args[0];
-		}
+		Map<String, String> argMap = argsToMap(args);
+
+		String workDirPath = getArg(argMap, "workDir", getArg(argMap, "java.io.tmpdir", ""));
+		File workDir = new File(workDirPath);
+		String contextPath = getArg(argMap, "context", "");
 		if (hasLength(contextPath) && !contextPath.startsWith("/")) {
 			contextPath = '/' + contextPath;
 		}
-		String host = "localhost";
-		if (args.length > 1) {
-			host = args[1];
-		}
-		int port = argToNumber(args, 2, 8080);
-		int httpsPort = argToNumber(args, 3, 0);
+		String host = getArg(argMap, "host", "localhost");
+		int port = getIntArg(argMap, "port", 8080);
+		int httpsPort = getIntArg(argMap, "httpsPort", 0);
 
-		String keystorePath = "";
-		String keystorePassword = "";
-		if (httpsPort > 0 && args.length > 5) {
-			keystorePath = args[4];
-			keystorePassword = args[5];
-		}
+		String keystorePath = getArg(argMap, "keystorePath", getArg(argMap, "javax.net.ssl.keyStore", ""));
+		String keystorePassword = getArg(argMap, "keystorePassword", getArg(argMap, "javax.net.ssl.keyStorePassword", ""));
+		String truststorePath = getArg(argMap, "truststorePath", getArg(argMap, "javax.net.ssl.trustStore", ""));
+		String trustStorePassword = getArg(argMap, "trustStorePassword", getArg(argMap, "javax.net.ssl.trustStorePassword", ""));
 
 		boolean usingUserKeystore;
 		File keystoreFile;
@@ -87,37 +121,49 @@ public class Launcher extends AbstractLauncher {
 		File tomcatDir = new File(workDir, "grails-standalone-tomcat");
 		deleteDir(tomcatDir);
 
-		Tomcat tomcat = configureTomcat(tomcatDir, contextPath, exploded, host, port,
-				httpsPort, keystoreFile, keystorePassword, usingUserKeystore);
+		boolean enableCompression = getBooleanArg(argMap, "enableCompression", true);
+		String compressableMimeTypes = getArg(argMap, "compressableMimeTypes", "");
+		boolean enableClientAuth = getBooleanArg(argMap, "enableClientAuth", false);
+		int sessionTimeout = getIntArg(argMap, "sessionTimeout", 30);
+		String nio = getArg(argMap, "nio", getArg(argMap, "tomcat.nio"));
+		boolean useNio = nio == null || nio.equalsIgnoreCase("true");
 
-		startKillSwitchThread(tomcat, port);
+		configureTomcat(tomcatDir, contextPath, exploded, host, port,
+				httpsPort, keystoreFile, keystorePassword, usingUserKeystore,
+				enableClientAuth, truststorePath, trustStorePassword,
+				sessionTimeout, enableCompression, compressableMimeTypes, useNio);
 
-		startTomcat(tomcat, host, port, contextPath, httpsPort > 0 ? httpsPort : null);
+		startKillSwitchThread(port);
+		addShutdownHook();
+		addFailureLifecycleListener(contextPath);
+
+		startTomcat(host, port, contextPath, httpsPort > 0 ? httpsPort : null);
 	}
 
-	protected Tomcat configureTomcat(File tomcatDir, String contextPath, File exploded,
-			String host, int port, int httpsPort, File keystoreFile,
-			String keystorePassword, boolean usingUserKeystore) throws IOException {
+	protected void configureTomcat(File tomcatDir, String contextPath, File exploded,
+			String host, int port, int httpsPort, File keystoreFile, String keystorePassword,
+			boolean usingUserKeystore, boolean enableClientAuth,
+			String truststorePath, String trustStorePassword, Integer sessionTimeout,
+			boolean enableCompression, String compressableMimeTypes, boolean useNio) throws IOException, ServletException {
 
-		Tomcat tomcat = new Tomcat();
 		tomcat.setPort(port);
 
 		tomcat.setBaseDir(tomcatDir.getPath());
-		try {
-			tomcat.addWebapp(contextPath, exploded.getAbsolutePath());
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Error loading Tomcat: " + e.getMessage());
-			System.exit(1);
-		}
+		context = tomcat.addWebapp(contextPath, exploded.getAbsolutePath());
 		tomcat.enableNaming();
 
-		addNioConnector(tomcat, port);
+		if (useNio) {
+			addNioConnector(port);
+		}
 
 		tomcat.getEngine().getPipeline().addValve(new CrawlerSessionManagerValve());
 
 		Connector connector = tomcat.getConnector();
+
+		if (enableCompression) {
+			connector.setProperty("compression", "on");
+			connector.setProperty("compressableMimeType", compressableMimeTypes);
+		}
 
 		// Only bind to host name if we aren't using the default
 		if (!host.equals("localhost")) {
@@ -126,15 +172,15 @@ public class Launcher extends AbstractLauncher {
 
 		connector.setURIEncoding("UTF-8");
 
+		context.setSessionTimeout(sessionTimeout);
+
 		if (httpsPort > 0) {
 			initSsl(keystoreFile, keystorePassword, usingUserKeystore);
-			createSslConnector(tomcat, httpsPort, keystoreFile, keystorePassword, host);
+			createSslConnector(httpsPort, keystoreFile, keystorePassword, truststorePath, trustStorePassword, host, enableClientAuth);
 		}
-
-		return tomcat;
 	}
 
-	protected void startKillSwitchThread(final Tomcat tomcat, final int serverPort) {
+	protected void startKillSwitchThread(final int serverPort) {
 		new Thread() {
 			@Override
 			public void run() {
@@ -159,7 +205,7 @@ public class Launcher extends AbstractLauncher {
 		}.start();
 	}
 
-	protected void startTomcat(Tomcat tomcat, String host, int port, String contextPath, Integer securePort) {
+	protected void startTomcat(String host, int port, String contextPath, Integer securePort) {
 		try {
 			tomcat.start();
 			String message = "Server running. Browse to http://" +
@@ -179,8 +225,8 @@ public class Launcher extends AbstractLauncher {
 		}
 	}
 
-	protected void createSslConnector(Tomcat tomcat, int httpsPort, File keystoreFile,
-			String keystorePassword, String host) {
+	protected void createSslConnector(int httpsPort, File keystoreFile, String keystorePassword,
+			String truststorePath, String trustStorePassword, String host, boolean enableClientAuth) {
 
 		Connector sslConnector;
 		try {
@@ -194,9 +240,20 @@ public class Launcher extends AbstractLauncher {
 		sslConnector.setSecure(true);
 		sslConnector.setPort(httpsPort);
 		sslConnector.setProperty("SSLEnabled", "true");
+		sslConnector.setURIEncoding("UTF-8");
+
 		sslConnector.setAttribute("keystoreFile", keystoreFile.getAbsolutePath());
 		sslConnector.setAttribute("keystorePass", keystorePassword);
-		sslConnector.setURIEncoding("UTF-8");
+
+		if (hasLength(truststorePath)) {
+			sslConnector.setProperty("sslProtocol", "tls");
+			sslConnector.setAttribute("truststoreFile", new File(truststorePath).getAbsolutePath());
+			sslConnector.setAttribute("trustStorePassword", trustStorePassword);
+		}
+
+		if (enableClientAuth) {
+			sslConnector.setAttribute("clientAuth", true);
+		}
 
 		if (!host.equals("localhost")) {
 			sslConnector.setAttribute("address", host);
@@ -205,17 +262,12 @@ public class Launcher extends AbstractLauncher {
 		tomcat.getService().addConnector(sslConnector);
 	}
 
-	protected void addNioConnector(Tomcat tomcat, int port) {
-		boolean useNio = Boolean.getBoolean("tomcat.nio");
-		if (!useNio) {
-			return;
-		}
-
+	protected void addNioConnector(int port) {
 		System.out.println("Enabling Tomcat NIO Connector");
 		Connector connector = new Connector(Http11NioProtocol.class.getName());
 		connector.setPort(port);
-		tomcat.getService().addConnector(connector);
 		tomcat.setConnector(connector);
+		tomcat.getService().addConnector(tomcat.getConnector());
 	}
 
 	protected ServerSocket createKillSwitch(int killListenerPort) {
@@ -225,5 +277,41 @@ public class Launcher extends AbstractLauncher {
 		catch (IOException e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Stops the embedded Tomcat server.
+	 */
+	protected void addShutdownHook() {
+		// add shutdown hook to stop server
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					if (tomcat != null) {
+						tomcat.getServer().stop();
+					}
+				}
+				catch (LifecycleException e) {
+					throw new RuntimeException("WARNING: Cannot Stop Tomcat " + e.getMessage(), e);
+				}
+			}
+		});
+	}
+
+	protected void addFailureLifecycleListener(final String contextName) {
+		// allow Tomcat to shutdown if a context failure is detected
+		context.addLifecycleListener(new LifecycleListener() {
+			public void lifecycleEvent(LifecycleEvent event) {
+				if (event.getLifecycle().getState() == LifecycleState.FAILED) {
+					Server server = tomcat.getServer();
+					if (server instanceof StandardServer) {
+						System.err.println("SEVERE: Context [" + contextName + "] failed in [" +
+								event.getLifecycle().getClass().getName() + "] lifecycle. Allowing Tomcat to shutdown.");
+						((StandardServer) server).stopAwait();
+					}
+				}
+			}
+		});
 	}
 }

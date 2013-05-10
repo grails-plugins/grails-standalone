@@ -1,4 +1,4 @@
-/* Copyright 2012 SpringSource
+/* Copyright 2012-2013 SpringSource
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
@@ -61,29 +62,21 @@ public class JettyLauncher extends AbstractLauncher {
 	@Override
 	protected void start(File exploded, String[] args) throws IOException {
 
+		Map<String, String> argMap = argsToMap(args);
+
 		System.setProperty("org.eclipse.jetty.xml.XmlParser.NotValidating", "true");
 
 		File workDir = new File(System.getProperty("java.io.tmpdir"));
-		String contextPath = "";
-		if (args.length > 0) {
-			contextPath = args[0];
-		}
+		String contextPath = getArg(argMap, "context", "");
 		if (hasLength(contextPath) && !contextPath.startsWith("/")) {
 			contextPath = '/' + contextPath;
 		}
-		String host = "localhost";
-		if (args.length > 1) {
-			host = args[1];
-		}
-		int port = argToNumber(args, 2, 8080);
-		int httpsPort = argToNumber(args, 3, 0);
+		String host = getArg(argMap, "host", "localhost");
+		int port = getIntArg(argMap, "port", 8080);
+		int httpsPort = getIntArg(argMap, "httpsPort", 0);
 
-		String keystorePath = "";
-		String keystorePassword = "";
-		if (httpsPort > 0 && args.length > 5) {
-			keystorePath = args[4];
-			keystorePassword = args[5];
-		}
+		String keystorePath = getArg(argMap, "keystorePath", "");
+		String keystorePassword = getArg(argMap, "keystorePassword", "");
 
 		boolean usingUserKeystore;
 		File keystoreFile;
@@ -215,7 +208,7 @@ public class JettyLauncher extends AbstractLauncher {
 		return server;
 	}
 
-	private void createSslConnector(Server server, int httpsPort, String serverHost, File keystoreFile, String keystorePassword) {
+	protected void createSslConnector(Server server, int httpsPort, String serverHost, File keystoreFile, String keystorePassword) {
 
 		SslSocketConnector secureListener = new SslSocketConnector();
 		secureListener.setPort(httpsPort);
