@@ -1,4 +1,4 @@
-h4. Building the jar
+h3. Building the jar
 
 The first step is to run the [build-standalone|Scripts] script, e.g.
 
@@ -24,21 +24,35 @@ or
 grails -Dgrails.env=demo build-standalone our_cool_demo.jar --jetty
 {code}
 
-You can also change the default embedded server to Jetty by placing the
-following in your Config.groovy:
+You can change the default embedded server to Jetty by adding this to BuildConfig.groovy:
 
 {code}
-grails.plugins.standalone.useJetty = true
-{/code}
+grails.plugin.standalone.useJetty = true
+{code}
 
-If you've set jetty to the default, you can force a tomcat build later with the \-\-tomcat flag:
+If you've set Jetty to the default, you can force a Tomcat build later with the \-\-tomcat flag:
 
-{code:java}
+{code}
 grails build-standalone --tomcat
-{/code}
+{code}
 
+h4. Build Configuration
 
-h4. Running the server
+There are several configuration settings that you can use to change how the jar is built; add any of these to BuildConfig.groovy to override the defaults:
+
+{table}
+*Property* | *Default Value* | *Meaning*
+grails.plugin.standalone. ecjDependency | 'org.eclipse.jdt.core.compiler:ecj:3.7.1' | the dependency config for the ECJ jar
+grails.plugin.standalone. extraDependencies | none | extra dependency jars to include in the standalone jar
+grails.plugin.standalone. ivyLogLevel | 'warn' | the Ivy log level
+grails.plugin.standalone. jettyServletApiDependency | 'javax.servlet:servlet-api:2.5' or 'javax.servlet:javax.servlet-api:3.0.1' | the Jetty servlet API jar dependency
+grails.plugin.standalone. jettyVersion | '7.6.0.v20120127' | the version of Jetty to use
+grails.plugin.standalone. tomcatVersion | '7.0.39' | the version of Tomcat to use
+grails.plugin.standalone. tomcatDependencies | 'tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina', 'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util' | the Tomcat jars to use
+grails.plugin.standalone. tomcatEmbedDependencies | 'tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j' | the Tomcat embed jars to use
+{table}
+
+h3. Running the server
 
 As long as the target machine has Java 5 or higher available, all you need to do next is run
 
