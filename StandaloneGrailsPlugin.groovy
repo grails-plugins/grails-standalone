@@ -14,7 +14,7 @@
  */
 class StandaloneGrailsPlugin {
 
-	String version = '1.2'
+	String version = '1.2.1'
 	String grailsVersion = '1.3 > *'
 	def scopes = [excludes: 'war']
 	List pluginExcludes = [
