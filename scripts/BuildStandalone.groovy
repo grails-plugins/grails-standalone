@@ -134,7 +134,7 @@ buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
 			zipfileset file: warfile, fullpath: 'embedded.war'
 		}
 		manifest {
-			attribute name: 'Main-Class', value: jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher'
+			attribute name: 'Main-Class', value: resolveMainClass(jetty)
 		}
 	}
 
@@ -195,6 +195,14 @@ resolveJars = { boolean jetty, standaloneConfig ->
 	}
 
 	paths
+}
+
+String resolveMainClass(boolean jetty) {
+    if (buildSettings.config.grails.plugin.standalone.mainClass) {
+        buildSettings.config.grails.plugin.standalone.mainClass
+    } else {
+        jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher'
+    }
 }
 
 calculateJettyDependencies = { standaloneConfig ->

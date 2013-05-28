@@ -50,6 +50,7 @@ grails.plugin.standalone. jettyVersion | '7.6.0.v20120127' | the version of Jett
 grails.plugin.standalone. tomcatVersion | '7.0.39' | the version of Tomcat to use
 grails.plugin.standalone. tomcatDependencies | 'tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina', 'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util' | the Tomcat jars to use
 grails.plugin.standalone. tomcatEmbedDependencies | 'tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j' | the Tomcat embed jars to use
+grails.plugin.standalone. mainClass | none | Optionally specify a custom main class to include in the MANIFEST.MF. Note that you will then be required to call either grails.plugin.standalone.JettyLauncher or grails.plugin.standalone.Launcher yourself
 {table}
 
 h3. Running the server
