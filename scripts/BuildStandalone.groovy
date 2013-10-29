@@ -145,7 +145,7 @@ removeTomcatJarsFromWar = { File workDir, File warfile ->
 	def expandedDir = new File(workDir, 'expanded').absoluteFile
 	ant.unzip src: warfile, dest: expandedDir
 	for (file in new File(expandedDir, 'WEB-INF/lib').listFiles()) {
-		if (file.name.startsWith('tomcat-') && !file.name.contains('pool')) {
+		if (file.name.startsWith('tomcat-') && !file.name.contains('pool') && !file.name.contains('jdbc')) {
 			file.delete()
 		}
 	}
