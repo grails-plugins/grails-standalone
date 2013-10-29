@@ -198,11 +198,7 @@ resolveJars = { boolean jetty, standaloneConfig ->
 }
 
 String resolveMainClass(boolean jetty) {
-    if (buildSettings.config.grails.plugin.standalone.mainClass) {
-        buildSettings.config.grails.plugin.standalone.mainClass
-    } else {
-        jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher'
-    }
+	buildSettings.config.grails.plugin.standalone.mainClass ?: (jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher')
 }
 
 calculateJettyDependencies = { standaloneConfig ->
@@ -215,7 +211,7 @@ calculateJettyDependencies = { standaloneConfig ->
 
 calculateTomcatDependencies = { standaloneConfig ->
 
-	String tomcatVersion = standaloneConfig.tomcatVersion ?: '7.0.39'
+	String tomcatVersion = standaloneConfig.tomcatVersion ?: '7.0.47'
 
 	def deps = []
 
