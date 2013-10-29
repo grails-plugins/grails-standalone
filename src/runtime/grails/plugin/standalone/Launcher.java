@@ -17,7 +17,6 @@ package grails.plugin.standalone;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 
@@ -74,10 +73,10 @@ public class Launcher extends AbstractLauncher {
 	 */
 	public static void main(String[] args) {
 		try {
-			final Launcher launcher = new Launcher();
+			final Launcher launcher = new Launcher(args);
 			final File exploded = launcher.extractWar();
 			launcher.deleteExplodedOnShutdown(exploded);
-			launcher.start(exploded, args);
+			launcher.start(exploded);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -86,25 +85,26 @@ public class Launcher extends AbstractLauncher {
 		}
 	}
 
+	public Launcher(String[] args) {
+		super(args);
+	}
+
 	@Override
-	protected void start(File exploded, String[] args) throws IOException, ServletException {
+	protected void start(File exploded) throws IOException, ServletException {
 
-		Map<String, String> argMap = argsToMap(args);
-
-		String workDirPath = getArg(argMap, "workDir", getArg(argMap, "java.io.tmpdir", ""));
-		File workDir = new File(workDirPath);
-		String contextPath = getArg(argMap, "context", "");
+		File workDir = getWorkDir();
+		String contextPath = getArg("context", "");
 		if (hasLength(contextPath) && !contextPath.startsWith("/")) {
 			contextPath = '/' + contextPath;
 		}
-		String host = getArg(argMap, "host", "localhost");
-		int port = getIntArg(argMap, "port", 8080);
-		int httpsPort = getIntArg(argMap, "httpsPort", 0);
+		String host = getArg("host", "localhost");
+		int port = getIntArg("port", 8080);
+		int httpsPort = getIntArg("httpsPort", 0);
 
-		String keystorePath = getArg(argMap, "keystorePath", getArg(argMap, "javax.net.ssl.keyStore", ""));
-		String keystorePassword = getArg(argMap, "keystorePassword", getArg(argMap, "javax.net.ssl.keyStorePassword", ""));
-		String truststorePath = getArg(argMap, "truststorePath", getArg(argMap, "javax.net.ssl.trustStore", ""));
-		String trustStorePassword = getArg(argMap, "trustStorePassword", getArg(argMap, "javax.net.ssl.trustStorePassword", ""));
+		String keystorePath = getArg("keystorePath", getArg("javax.net.ssl.keyStore", ""));
+		String keystorePassword = getArg("keystorePassword", getArg("javax.net.ssl.keyStorePassword", ""));
+		String truststorePath = getArg("truststorePath", getArg("javax.net.ssl.trustStore", ""));
+		String trustStorePassword = getArg("trustStorePassword", getArg("javax.net.ssl.trustStorePassword", ""));
 
 		boolean usingUserKeystore;
 		File keystoreFile;
@@ -121,11 +121,11 @@ public class Launcher extends AbstractLauncher {
 		File tomcatDir = new File(workDir, "grails-standalone-tomcat");
 		deleteDir(tomcatDir);
 
-		boolean enableCompression = getBooleanArg(argMap, "enableCompression", true);
-		String compressableMimeTypes = getArg(argMap, "compressableMimeTypes", "");
-		boolean enableClientAuth = getBooleanArg(argMap, "enableClientAuth", false);
-		int sessionTimeout = getIntArg(argMap, "sessionTimeout", 30);
-		String nio = getArg(argMap, "nio", getArg(argMap, "tomcat.nio"));
+		boolean enableCompression = getBooleanArg("enableCompression", true);
+		String compressableMimeTypes = getArg("compressableMimeTypes", "");
+		boolean enableClientAuth = getBooleanArg("enableClientAuth", false);
+		int sessionTimeout = getIntArg("sessionTimeout", 30);
+		String nio = getArg("nio", getArg("tomcat.nio"));
 		boolean useNio = nio == null || nio.equalsIgnoreCase("true");
 
 		configureTomcat(tomcatDir, contextPath, exploded, host, port,

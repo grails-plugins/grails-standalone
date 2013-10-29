@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
@@ -53,30 +52,32 @@ public class JettyLauncher extends AbstractLauncher {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		final JettyLauncher launcher = new JettyLauncher();
+		final JettyLauncher launcher = new JettyLauncher(args);
 		final File exploded = launcher.extractWar();
 		launcher.deleteExplodedOnShutdown(exploded);
-		launcher.start(exploded, args);
+		launcher.start(exploded);
+	}
+
+	public JettyLauncher(String[] args) {
+		super(args);
 	}
 
 	@Override
-	protected void start(File exploded, String[] args) throws IOException {
-
-		Map<String, String> argMap = argsToMap(args);
+	protected void start(File exploded) throws IOException {
 
 		System.setProperty("org.eclipse.jetty.xml.XmlParser.NotValidating", "true");
 
 		File workDir = new File(System.getProperty("java.io.tmpdir"));
-		String contextPath = getArg(argMap, "context", "");
+		String contextPath = getArg("context", "");
 		if (hasLength(contextPath) && !contextPath.startsWith("/")) {
 			contextPath = '/' + contextPath;
 		}
-		String host = getArg(argMap, "host", "localhost");
-		int port = getIntArg(argMap, "port", 8080);
-		int httpsPort = getIntArg(argMap, "httpsPort", 0);
+		String host = getArg("host", "localhost");
+		int port = getIntArg("port", 8080);
+		int httpsPort = getIntArg("httpsPort", 0);
 
-		String keystorePath = getArg(argMap, "keystorePath", "");
-		String keystorePassword = getArg(argMap, "keystorePassword", "");
+		String keystorePath = getArg("keystorePath", "");
+		String keystorePassword = getArg("keystorePassword", "");
 
 		boolean usingUserKeystore;
 		File keystoreFile;

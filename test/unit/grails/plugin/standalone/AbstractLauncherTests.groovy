@@ -1,19 +1,23 @@
 package grails.plugin.standalone
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+
 import junit.framework.TestCase
 
 class AbstractLauncherTests extends GroovyTestCase {
 
-	private AbstractLauncher launcher = new AbstractLauncher() {
-		protected void start(File exploded, String[] args) {}
-	}
+	private AbstractLauncher launcher = createLauncher([])
 
 	void testExtractWar() {
 		File jar = new File(TestCase.protectionDomain.codeSource.location.toString() - 'file:')
 
 		File extractionDir
 		try {
-			extractionDir = launcher.extractWar(new FileInputStream(jar))
+			extractionDir = launcher.extractWar(new FileInputStream(jar),
+				File.createTempFile("embedded", ".war", new File(System.getProperty('java.io.tmpdir'))).getAbsoluteFile())
 			File classFile = new File(extractionDir, 'junit/framework/TestCase.class')
 			assert classFile.exists()
 		}
@@ -57,28 +61,28 @@ class AbstractLauncherTests extends GroovyTestCase {
 	}
 
 	void testGetArg() {
-		def map = launcher.argsToMap(['port=1', 'context=file.separator'] as String[])
-		assert '1' == launcher.getArg(map, 'port')
-		assertNull launcher.getArg(map, 'missing')
-		assert 'def' == launcher.getArg(map, 'missing', 'def')
-		assert File.separator == launcher.getArg(map, 'context')
+		launcher = createLauncher(['port=1', 'context=file.separator'])
+		assert '1' == launcher.getArg('port')
+		assertNull launcher.getArg('missing')
+		assert 'def' == launcher.getArg('missing', 'def')
+		assert File.separator == launcher.getArg('context')
 	}
 
 	void testGetIntArg() {
-		def map = launcher.argsToMap(['port=1', 'context=bar', 'fs=file.separator'] as String[])
-		assert 1 == launcher.getIntArg(map, 'port', 42)
-		assert 2 == launcher.getIntArg(map, 'x2', 2)
-		assert 3 == launcher.getIntArg(map, 'foo', 3)
+		launcher = createLauncher(['port=1', 'context=bar', 'fs=file.separator'])
+		assert 1 == launcher.getIntArg('port', 42)
+		assert 2 == launcher.getIntArg('x2', 2)
+		assert 3 == launcher.getIntArg('foo', 3)
 	}
 
 	void testGetBooleanArg() {
-		def map = launcher.argsToMap(['enableClientAuth=TRUE', 'enableCompression=FALSE', 'nio=true', 'tomcat.nio=false'] as String[])
-		assert launcher.getBooleanArg(map, 'enableClientAuth', false)
-		assert !launcher.getBooleanArg(map, 'enableCompression', true)
-		assert launcher.getBooleanArg(map, 'nio', false)
-		assert !launcher.getBooleanArg(map, 'tomcat.nio', true)
-		assert launcher.getBooleanArg(map, 'm1', true)
-		assert !launcher.getBooleanArg(map, 'm1', false)
+		launcher = createLauncher(['enableClientAuth=TRUE', 'enableCompression=FALSE', 'nio=true', 'tomcat.nio=false'])
+		assert launcher.getBooleanArg('enableClientAuth', false)
+		assert !launcher.getBooleanArg('enableCompression', true)
+		assert launcher.getBooleanArg('nio', false)
+		assert !launcher.getBooleanArg('tomcat.nio', true)
+		assert launcher.getBooleanArg('m1', true)
+		assert !launcher.getBooleanArg('m1', false)
 	}
 
 	void testDeleteDirMissing() {
@@ -142,6 +146,12 @@ class AbstractLauncherTests extends GroovyTestCase {
 				return dir
 			}
 			index++
+		}
+	}
+
+	private AbstractLauncher createLauncher(List<String> args) {
+		return new AbstractLauncher(args as String[]) {
+			protected void start(File exploded) {}
 		}
 	}
 }

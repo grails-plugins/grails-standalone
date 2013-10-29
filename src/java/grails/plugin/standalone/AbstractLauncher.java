@@ -46,16 +46,33 @@ public abstract class AbstractLauncher {
 			"trustStorePassword", "javax.net.ssl.trustStorePassword", "enableClientAuth", "workDir",
 			"enableCompression", "compressableMimeTypes", "sessionTimeout", "nio", "tomcat.nio");
 
-	protected File extractWar(InputStream embeddedWarfile) throws IOException {
-		File tempWarfile = File.createTempFile("embedded", ".war").getAbsoluteFile();
-		tempWarfile.getParentFile().mkdirs();
-		tempWarfile.deleteOnExit();
-		copy(embeddedWarfile, new FileOutputStream(tempWarfile));
-		return explode(tempWarfile);
+	protected Map<String, String> argsMap;
+
+	protected AbstractLauncher(String[] args) {
+		argsMap = argsToMap(args);
+	}
+
+	protected File getWorkDir() {
+		return new File(getArg("workDir", getArg("java.io.tmpdir", "")));
 	}
 
 	protected File extractWar() throws IOException {
-		return extractWar(getClass().getClassLoader().getResourceAsStream("embedded.war"));
+		File dir = new File(getWorkDir(), "standalone-war");
+		deleteDir(dir);
+		dir.mkdirs();
+		return extractWar(dir);
+	}
+
+	protected File extractWar(File dir) throws IOException {
+		return extractWar(getClass().getClassLoader().getResourceAsStream("embedded.war"),
+				File.createTempFile("embedded", ".war", dir).getAbsoluteFile());
+	}
+
+	protected File extractWar(InputStream embeddedWarfile, File destinationWarfile) throws IOException {
+		destinationWarfile.getParentFile().mkdirs();
+		destinationWarfile.deleteOnExit();
+		copy(embeddedWarfile, new FileOutputStream(destinationWarfile));
+		return explode(destinationWarfile);
 	}
 
 	protected File explode(File war) throws IOException {
@@ -99,7 +116,7 @@ public abstract class AbstractLauncher {
 		}
 	}
 
-	protected abstract void start(File exploded, String[] args) throws IOException, ServletException;
+	protected abstract void start(File exploded) throws IOException, ServletException;
 
 	protected boolean hasLength(String s) {
 		return s != null && s.trim().length() > 0;
@@ -125,12 +142,12 @@ public abstract class AbstractLauncher {
 		return map;
 	}
 
-	protected String getArg(Map<String, String> args, String name) {
-		return getArg(args, name, null);
+	protected String getArg(String name) {
+		return getArg(name, null);
 	}
 
-	protected String getArg(Map<String, String> args, String name, String defaultIfMissing) {
-		String value = args.get(name);
+	protected String getArg(String name, String defaultIfMissing) {
+		String value = argsMap.get(name);
 		if (value == null) {
 			if (System.getProperties().containsKey(name)) {
 				value = System.getProperty(name);
@@ -145,8 +162,8 @@ public abstract class AbstractLauncher {
 		return value;
 	}
 
-	protected int getIntArg(Map<String, String> args, String name, int defaultIfMissing) {
-		String value = args.get(name);
+	protected int getIntArg(String name, int defaultIfMissing) {
+		String value = argsMap.get(name);
 		if (value == null) {
 			return defaultIfMissing;
 		}
@@ -159,8 +176,8 @@ public abstract class AbstractLauncher {
 		}
 	}
 
-	protected boolean getBooleanArg(Map<String, String> args, String name, boolean defaultIfMissing) {
-		return "true".equalsIgnoreCase(getArg(args, name, String.valueOf(defaultIfMissing)));
+	protected boolean getBooleanArg(String name, boolean defaultIfMissing) {
+		return "true".equalsIgnoreCase(getArg(name, String.valueOf(defaultIfMissing)));
 	}
 
 	// from org.springframework.util.FileCopyUtils.copy()

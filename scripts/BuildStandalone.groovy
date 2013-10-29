@@ -45,7 +45,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 			return
 		}
 
-		String jarname = argsMap.params[0]
+		String jarname = argsMap.params[0] ?: buildSettings.config.grails.plugin.standalone.jarname
 		File jar = jarname ? new File(jarname).absoluteFile : new File(workDir.parentFile, 'standalone-' + grailsAppVersion + '.jar').absoluteFile
 
 		boolean jetty = (argsMap.jetty || buildSettings.config.grails.plugin.standalone.useJetty) && !argsMap.tomcat
@@ -134,7 +134,7 @@ buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
 			zipfileset file: warfile, fullpath: 'embedded.war'
 		}
 		manifest {
-			attribute name: 'Main-Class', value: jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher'
+			attribute name: 'Main-Class', value: resolveMainClass(jetty)
 		}
 	}
 
@@ -145,7 +145,7 @@ removeTomcatJarsFromWar = { File workDir, File warfile ->
 	def expandedDir = new File(workDir, 'expanded').absoluteFile
 	ant.unzip src: warfile, dest: expandedDir
 	for (file in new File(expandedDir, 'WEB-INF/lib').listFiles()) {
-		if (file.name.startsWith('tomcat-') && !file.name.contains('pool')) {
+		if (file.name.startsWith('tomcat-') && !file.name.contains('pool') && !file.name.contains('jdbc')) {
 			file.delete()
 		}
 	}
@@ -197,6 +197,10 @@ resolveJars = { boolean jetty, standaloneConfig ->
 	paths
 }
 
+String resolveMainClass(boolean jetty) {
+	buildSettings.config.grails.plugin.standalone.mainClass ?: (jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher')
+}
+
 calculateJettyDependencies = { standaloneConfig ->
 	String servletVersion = buildSettings.servletVersion
 	String servletApiDep = standaloneConfig.jettyServletApiDependency ?:
@@ -207,7 +211,7 @@ calculateJettyDependencies = { standaloneConfig ->
 
 calculateTomcatDependencies = { standaloneConfig ->
 
-	String tomcatVersion = standaloneConfig.tomcatVersion ?: '7.0.39'
+	String tomcatVersion = standaloneConfig.tomcatVersion ?: '7.0.47'
 
 	def deps = []
 
