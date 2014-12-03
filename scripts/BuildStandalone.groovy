@@ -1,4 +1,4 @@
-/* Copyright 2011-2013 SpringSource
+/* Copyright 2011-2014 SpringSource
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ removeTomcatJarsFromWar = { File workDir, File warfile ->
 
 resolveJars = { boolean jetty, standaloneConfig ->
 
-	def deps = [standaloneConfig.ecjDependency ?: 'org.eclipse.jdt.core.compiler:ecj:3.7.1']
+	def deps = [standaloneConfig.ecjDependency ?: 'org.eclipse.jdt.core.compiler:ecj:4.4']
 
 	if (jetty) {
 		deps.addAll calculateJettyDependencies(standaloneConfig)
@@ -204,24 +204,27 @@ String resolveMainClass(boolean jetty) {
 calculateJettyDependencies = { standaloneConfig ->
 	String servletVersion = buildSettings.servletVersion
 	String servletApiDep = standaloneConfig.jettyServletApiDependency ?:
-		servletVersion.startsWith('3') ? 'javax.servlet:javax.servlet-api:3.0.1' : 'javax.servlet:servlet-api:' + servletVersion
+		servletVersion.startsWith('3') ? 'javax.servlet:javax.servlet-api:3.1.0' : 'javax.servlet:servlet-api:' + servletVersion
 	String jettyVersion = standaloneConfig.jettyVersion ?: '7.6.0.v20120127'
 	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion, servletApiDep]
 }
 
 calculateTomcatDependencies = { standaloneConfig ->
 
-	String tomcatVersion = standaloneConfig.tomcatVersion ?: '7.0.47'
+	String tomcatVersion = standaloneConfig.tomcatVersion ?: '8.0.15'
 
 	def deps = []
 
-	def defaultTomcatDeps = ['tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina',
-	                         'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util']
+	def defaultTomcatDeps = [
+		'tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina',
+		'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util']
 	for (name in (standaloneConfig.tomcatDependencies ?: defaultTomcatDeps)) {
 		deps << 'org.apache.tomcat:' + name + ':' + tomcatVersion
 	}
 
-	def defaultTomcatEmbedDeps = ['tomcat-embed-core', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j']
+	def defaultTomcatEmbedDeps = [
+		'tomcat-embed-core', 'tomcat-embed-el', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli',
+		'tomcat-embed-logging-log4j', 'tomcat-embed-websocket']
 	for (name in (standaloneConfig.tomcatEmbedDependencies ?: defaultTomcatEmbedDeps)) {
 		deps << 'org.apache.tomcat.embed:' + name + ':' + tomcatVersion
 	}

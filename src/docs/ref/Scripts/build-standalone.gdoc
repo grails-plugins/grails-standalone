@@ -2,7 +2,7 @@ h1. build-standalone
 
 h2. Purpose
 
-Builds a runnable JAR file that contains the application and embeds Tomcat 7 or Jetty 7.
+Builds a runnable JAR file that contains the application and embeds Tomcat 8 or Jetty 7.
 
 h2. Description
 
