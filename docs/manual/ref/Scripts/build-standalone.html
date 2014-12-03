@@ -2,7 +2,7 @@
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-    <title>Grails Standalone Plugin 1.2.3</title>
+    <title>Grails Standalone Plugin 1.3</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="stylesheet" href="../../css/main.css" type="text/css" media="screen, print" title="Style" charset="utf-8"/>
     <link rel="stylesheet" href="../../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8"/>
@@ -55,7 +55,7 @@ function addJsClass(el) {
 
                 <span id='toggle-col1' class="toggle">(<a href="#" onclick="localToggle(); return false;">Quick Reference</a>)</span>
 
-                <h1>build-standalone</h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Builds a runnable JAR file that contains the application and embeds Tomcat 7 or Jetty 7.<p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Builds a JAR file in the <code>target</code> directory called <code>standalone-&#60;application version&#62;.jar</code>. This can be run with <code>java -jar standalone-&#60;application version&#62;.jar</code> and can take optional arguments for the context path, port, etc.<p class="paragraph"/><blockquote class="warning">
+                <h1>build-standalone</h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Builds a runnable JAR file that contains the application and embeds Tomcat 8 or Jetty 7.<p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Builds a JAR file in the <code>target</code> directory called <code>standalone-&#60;application version&#62;.jar</code>. This can be run with <code>java -jar standalone-&#60;application version&#62;.jar</code> and can take optional arguments for the context path, port, etc.<p class="paragraph"/><blockquote class="warning">
 Since this script builds a war file if you don't specify an existing one, be sure to specify the correct environment to build with.
 </blockquote><p class="paragraph"/>Usage:
 <div class="code"><pre>grails &#91;environment&#93; build&#45;standalone &#91;jarname&#93; &#91;&#45;&#45;jetty&#93; &#91;&#45;&#45;warfile=&#60;war file path&#62;&#93;</pre></div><p class="paragraph"/>Examples:
@@ -102,17 +102,5 @@ grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar &#45;&#45;je
 
 <script type="text/javascript" src="../../js/docs.js"></script>
 
-
-<script type="text/javascript">
-	var _gaq = _gaq || [];
-	_gaq.push(['_setAccount', 'UA-16219500-1']);
-	_gaq.push(['_trackPageview']);
-
-	(function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	})();
-</script>
 </body>
 </html>
