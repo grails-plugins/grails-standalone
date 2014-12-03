@@ -18,6 +18,11 @@ grails.project.dependency.resolution = {
 		compile 'org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion, {
 			export = false
 		}
+
+		String tomcatVersion = '8.0.15'
+		compile "org.apache.tomcat.embed:tomcat-embed-core:$tomcatVersion", {
+			export = false
+		}
 	}
 
 	plugins {
