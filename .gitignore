@@ -1,7 +1,10 @@
-stacktrace.log
 /target
 /docs
 /grails-standalone-*.zip
+/grails-standalone-*.zip.sha1
 /plugin.xml
 /.settings
-web-app
+/target
+/web-app
+*.swp
+*.log

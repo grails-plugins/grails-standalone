@@ -1,14 +1,12 @@
 <project name='standalone' default='package'>
 
-	<property environment='env'/>
+	<property environment='env' />
 	<property name='grails.home' value='${env.GRAILS_HOME}' />
 
 	<condition property='grails' value='grails.bat'>
-		<os family='windows'/>
+		<os family='windows' />
 	</condition>
 	<property name='grails' value='grails' />
-
-	<!-- Macrodefs -->
 
 	<macrodef name='grails'>
 		<attribute name='action' />
@@ -17,16 +15,14 @@
 		<sequential>
 			<exec executable='${grails}' failonerror='true'>
 				<args />
-				<arg value='@{environment}'/>
-				<arg value='@{action}'/>
+				<arg value='@{environment}' />
+				<arg value='@{action}' />
 			</exec>
 		</sequential>
 	</macrodef>
 
-	<!-- Targets -->
-
 	<target name='init'>
-		<mkdir dir='grails-app/conf/spring'/>
+		<mkdir dir='grails-app/conf/spring' />
 	</target>
 
 	<target name='clean' description='Cleans a Grails application' depends='init'>
@@ -39,26 +35,26 @@
 	</target>
 
 	<target name='package' description='Package the plugin'
-	        depends='test, doPackage, post-package-cleanup'/>
+	        depends='test, doPackage, post-package-cleanup' />
 
 	<target name='doPackage'>
 		<grails action='package-plugin' />
 	</target>
 
 	<target name='post-package-cleanup'>
-		<delete dir='grails-app/conf/hibernate'/>
-		<delete dir='grails-app/conf/spring'/>
-		<delete dir='grails-app/controllers'/>
-		<delete dir='grails-app/domain'/>
-		<delete dir='grails-app/i18n'/>
-		<delete dir='grails-app/services'/>
-		<delete dir='grails-app/taglib'/>
-		<delete dir='grails-app/utils'/>
-		<delete dir='grails-app/views'/>
-		<delete dir='lib'/>
-		<delete dir='src/groovy'/>
-		<delete dir='test/integration'/>
-		<delete dir='web-app'/>
+		<delete dir='grails-app/conf/hibernate' />
+		<delete dir='grails-app/conf/spring' />
+		<delete dir='grails-app/controllers' />
+		<delete dir='grails-app/domain' />
+		<delete dir='grails-app/i18n' />
+		<delete dir='grails-app/services' />
+		<delete dir='grails-app/taglib' />
+		<delete dir='grails-app/utils' />
+		<delete dir='grails-app/views' />
+		<delete dir='lib' />
+		<delete dir='src/groovy' />
+		<delete dir='test/integration' />
+		<delete dir='web-app' />
 	</target>
 
 </project>
