@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 class StandaloneGrailsPlugin {
-	String version = '1.2.3'
+	String version = '1.3'
 	String grailsVersion = '2.0 > *'
 	def scopes = [excludes: 'war']
 	List pluginExcludes = [
