@@ -13,21 +13,18 @@
  * limitations under the License.
  */
 class StandaloneGrailsPlugin {
-
 	String version = '1.2.3'
-	String grailsVersion = '1.3 > *'
+	String grailsVersion = '2.0 > *'
 	def scopes = [excludes: 'war']
 	List pluginExcludes = [
 		'docs/**',
 		'src/docs/**'
 	]
-
 	String author = 'Burt Beckwith'
 	String authorEmail = 'burt@burtbeckwith.com'
 	String title = 'Standalone App Runner'
 	String description = 'Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server'
 	String documentation = 'http://grails-plugins.github.com/grails-standalone/'
-
 	String license = 'APACHE'
 	def organization = [name: 'SpringSource', url: 'http://www.springsource.org/']
 	def issueManagement = [system: 'JIRA', url: 'http://jira.grails.org/browse/GPSTANDALONE']
