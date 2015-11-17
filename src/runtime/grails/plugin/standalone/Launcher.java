@@ -67,6 +67,8 @@ public class Launcher extends AbstractLauncher {
 	 *           <li>enableClientAuth defaults to false</li>
 	 *           <li>sessionTimeout, defaults to 30 (minutes)</li>
 	 *           <li>nio or tomcat.nio, defaults to true</li>
+	 *           <li>serverName, a specific value to use as HTTP Server Header, no default</li>
+	 *           <li>enableProxySupport, enables support for X-Forwarded headers, defaults to false</li>
 	 *           </ul>
 	 *           In addition, if you specify a value that is the name of a system
 	 *           property (e.g. 'home.dir'), the system property value will be used.
@@ -127,11 +129,14 @@ public class Launcher extends AbstractLauncher {
 		int sessionTimeout = getIntArg("sessionTimeout", 30);
 		String nio = getArg("nio", getArg("tomcat.nio"));
 		boolean useNio = nio == null || nio.equalsIgnoreCase("true");
+		String serverName = getArg("serverName", null);
+		boolean enableProxySupport = getBooleanArg("enableProxySupport", false);
 
 		configureTomcat(tomcatDir, contextPath, exploded, host, port,
 				httpsPort, keystoreFile, keystorePassword, usingUserKeystore,
 				enableClientAuth, truststorePath, trustStorePassword,
-				sessionTimeout, enableCompression, compressableMimeTypes, useNio);
+				sessionTimeout, enableCompression, compressableMimeTypes, useNio,
+				serverName, enableProxySupport);
 
 		startKillSwitchThread(port);
 		addShutdownHook();
@@ -144,7 +149,8 @@ public class Launcher extends AbstractLauncher {
 			String host, int port, int httpsPort, File keystoreFile, String keystorePassword,
 			boolean usingUserKeystore, boolean enableClientAuth,
 			String truststorePath, String trustStorePassword, Integer sessionTimeout,
-			boolean enableCompression, String compressableMimeTypes, boolean useNio) throws IOException, ServletException {
+			boolean enableCompression, String compressableMimeTypes, boolean useNio,
+			String serverName, boolean enableProxySupport) throws IOException, ServletException {
 
 		tomcat.setPort(port);
 
@@ -158,7 +164,17 @@ public class Launcher extends AbstractLauncher {
 
 		tomcat.getEngine().getPipeline().addValve(new CrawlerSessionManagerValve());
 
+		if (enableProxySupport) {
+			RemoteIpValve remoteIpValve = new RemoteIpValve();
+			remoteIpValve.setProtocolHeader("X-Forwarded-Proto");
+			tomcat.getEngine().getPipeline().addValve(remoteIpValve);
+		}
+
 		Connector connector = tomcat.getConnector();
+
+		if (serverName != null) {
+			connector.setProperty("server", serverName);
+		}
 
 		if (enableCompression) {
 			connector.setProperty("compression", "on");
