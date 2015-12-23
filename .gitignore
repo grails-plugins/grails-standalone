@@ -1,10 +1,11 @@
-/target
+*.log
+*.swp
+/.classpath
+/.project
+/.settings
 /docs
 /grails-standalone-*.zip
 /grails-standalone-*.zip.sha1
 /plugin.xml
-/.settings
 /target
 /web-app
-*.swp
-*.log

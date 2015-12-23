@@ -16,10 +16,7 @@ class StandaloneGrailsPlugin {
 	String version = '1.3'
 	String grailsVersion = '2.0 > *'
 	def scopes = [excludes: 'war']
-	List pluginExcludes = [
-		'docs/**',
-		'src/docs/**'
-	]
+	def pluginExcludes = ['src/docs/**']
 	String author = 'Burt Beckwith'
 	String authorEmail = 'burt@burtbeckwith.com'
 	String title = 'Standalone App Runner'
