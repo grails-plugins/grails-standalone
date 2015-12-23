@@ -1,4 +1,4 @@
-/* Copyright 2011-2014 SpringSource
+/* Copyright 2011-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ class StandaloneGrailsPlugin {
 	String description = 'Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server'
 	String documentation = 'http://grails-plugins.github.com/grails-standalone/'
 	String license = 'APACHE'
-	def organization = [name: 'SpringSource', url: 'http://www.springsource.org/']
+	def organization = [name: 'Grails', url: 'http://www.grails.org/']
 	def issueManagement = [system: 'JIRA', url: 'http://jira.grails.org/browse/GPSTANDALONE']
 	def scm = [url: 'https://github.com/grails-plugins/grails-standalone']
 }
