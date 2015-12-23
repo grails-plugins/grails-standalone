@@ -24,6 +24,6 @@ class StandaloneGrailsPlugin {
 	String documentation = 'http://grails-plugins.github.com/grails-standalone/'
 	String license = 'APACHE'
 	def organization = [name: 'Grails', url: 'http://www.grails.org/']
-	def issueManagement = [system: 'JIRA', url: 'http://jira.grails.org/browse/GPSTANDALONE']
+	def issueManagement = [url: 'https://github.com/grails-plugins/grails-standalone/issues']
 	def scm = [url: 'https://github.com/grails-plugins/grails-standalone']
 }
