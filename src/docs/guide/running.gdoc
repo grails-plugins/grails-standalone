@@ -78,6 +78,7 @@ There are several arguments you can pass to customize how the application runs, 
 # @nio@ or @tomcat.nio@, whether to use NIO; defaults to true
 # @serverName@, a specific value to use as HTTP Server Header, by default tomcat will use Apache-Coyote/1.1 if none set at application level (Tomcat only)
 # @enableProxySupport@, enables support for X-Forwarded headers by adding a pre-configured RemoteIpValve, defaults to false (Tomcat only)
+# @enableKillSwitch@, enables a listener on port+1 which will terminate tomcat upon receiving a request, defaults to true (Tomcat only)
 
 In addition, if you specify a value that is the name of a system property (e.g. 'home.dir'), the system property value will be used.
 

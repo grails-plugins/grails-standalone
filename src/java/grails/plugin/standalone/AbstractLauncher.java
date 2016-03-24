@@ -45,7 +45,7 @@ public abstract class AbstractLauncher {
 			"keystorePassword", "javax.net.ssl.keyStorePassword", "truststorePath", "javax.net.ssl.trustStore",
 			"trustStorePassword", "javax.net.ssl.trustStorePassword", "enableClientAuth", "workDir",
 			"enableCompression", "compressableMimeTypes", "sessionTimeout", "nio", "tomcat.nio",
-			"serverName", "enableProxySupport");
+			"serverName", "enableProxySupport", "enableKillSwitch");
 
 	protected Map<String, String> argsMap;
 
