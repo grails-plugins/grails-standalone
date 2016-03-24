@@ -69,6 +69,7 @@ public class Launcher extends AbstractLauncher {
 	 *           <li>nio or tomcat.nio, defaults to true</li>
 	 *           <li>serverName, a specific value to use as HTTP Server Header, no default</li>
 	 *           <li>enableProxySupport, enables support for X-Forwarded headers, defaults to false</li>
+	 *           <li>enableKillSwitch, enables a listener on port+1 which will terminate tomcat upon receiving a request, defaults to true</li>
 	 *           </ul>
 	 *           In addition, if you specify a value that is the name of a system
 	 *           property (e.g. 'home.dir'), the system property value will be used.
@@ -137,8 +138,9 @@ public class Launcher extends AbstractLauncher {
 				enableClientAuth, truststorePath, trustStorePassword,
 				sessionTimeout, enableCompression, compressableMimeTypes, useNio,
 				serverName, enableProxySupport);
-
-		startKillSwitchThread(port);
+		
+		boolean enableKillSwitch = getBooleanArg("enableKillSwitch", true);
+		if (enableKillSwitch) {startKillSwitchThread(port);}
 		addShutdownHook();
 		addFailureLifecycleListener(contextPath);
 
