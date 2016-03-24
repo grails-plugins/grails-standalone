@@ -30,6 +30,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.CrawlerSessionManagerValve;
+import org.apache.catalina.valves.RemoteIpValve;
 import org.apache.coyote.http11.Http11NioProtocol;
 
 /**
