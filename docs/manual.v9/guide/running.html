@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <title>2 Running the application 9.0.0.M4</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" title="Style" charset="utf-8"/>
+    <link rel="stylesheet" href="../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8"/>
+    <script type="text/javascript">
+function addJsClass() {
+    var classes = document.body.className.split(" ");
+    classes.push("js");
+    document.body.className = classes.join(" ");
+}
+    </script>
+</head>
+
+<body class="body" onload="addJsClass();">
+<div id="navigation">
+    <ul>
+        <li>
+            <div id="nav-summary" onmouseover="toggleNavSummary(false)" onmouseout="toggleNavSummary(true)">
+                <a href="../guide/index.html" class="button">Table of contents</a>
+
+                <div id="nav-summary-childs" style="display:none;">
+                    
+                    <div class="toc-item" style="margin-left:0"><a href="../guide/introduction.html"><strong>1</strong><span>Introduction to the Standalone Plugin</span></a>
+                    </div>
+                    
+                    <div class="toc-item" style="margin-left:0"><a href="../guide/running.html"><strong>2</strong><span>Running the application</span></a>
+                    </div>
+                    
+                </div>
+            </div>
+        </li>
+        <li class="separator selected">
+            <a id="ref-button" onclick="localToggle(); return false;" href="#">Quick Reference</a>
+        </li>
+    </ul>
+</div>
+<div id="header">
+    <div class="images clearfix">
+        
+        
+    </div>
+    <p>Runs a Grails application as a JAR file with an embedded Tomcat or Jetty server</p>
+</div>
+
+
+<table id="colset" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td id="col1">
+            <div id="main" class="corner-all">
+
+                
+                    <div class="toc-item prev-left"><a href="../guide/introduction.html">&lt;&lt; <strong>1</strong><span>Introduction to the Standalone Plugin</span></a></div>
+                
+
+                <span id='toggle-col1' class="toggle">(<a href="#" onclick="localToggle(); return false;">Quick Reference</a>)</span>
+
+                
+
+
+                <div class="project">
+                    <h1>2 Running the application - Reference Documentation</h1>
+
+                    <p><strong>Authors:</strong> Burt Beckwith</p>
+
+                    <p><strong>Version:</strong> 9.0.0.M4</p>
+
+                    
+                </div>
+
+                
+
+                
+
+<h1 id="running">2 Running the application</h1>
+<h3>Building the jar</h3><p class="paragraph"/>The first step is to run the <a href="../ref/Scripts/build-standalone.html" class="Scripts">build-standalone</a> script, e.g.<p class="paragraph"/><pre class="bq"><code>
+grails prod build&#45;standalone</code></pre><p class="paragraph"/>or<p class="paragraph"/><pre class="bq"><code>
+grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar</code></pre><p class="paragraph"/>If you pass the &#45;&#45;jetty flag the embedded server will be Jetty instead of the default Tomcat, for example<p class="paragraph"/><pre class="bq"><code>
+grails prod build&#45;standalone &#45;&#45;jetty</code></pre><p class="paragraph"/>or<p class="paragraph"/><pre class="bq"><code>
+grails &#45;Dgrails.env=demo build&#45;standalone our_cool_demo.jar &#45;&#45;jetty</code></pre><p class="paragraph"/>You can change the default embedded server to Jetty by adding this to BuildConfig.groovy:<p class="paragraph"/><pre class="bq"><code>
+grails.plugin.standalone.useJetty = true</code></pre><p class="paragraph"/>If you've set Jetty to the default, you can force a Tomcat build later with the &#45;&#45;tomcat flag:<p class="paragraph"/><pre class="bq"><code>
+grails build&#45;standalone &#45;&#45;tomcat</code></pre><p class="paragraph"/><h4>Build Configuration</h4><p class="paragraph"/>There are several configuration settings that you can use to change how the jar is built; add any of these to BuildConfig.groovy to override the defaults:<p class="paragraph"/><table class="wiki-table" cellpadding="0" cellspacing="0" border="0"><tr><th><strong class="bold">Property</strong></th><th><strong class="bold">Default Value</strong></th><th><strong class="bold">Meaning</strong></th></tr><tr class="table-odd"><td>grails.plugin.standalone. ecjDependency</td><td>org.eclipse.jdt.core.compiler:ecj:4.5.1</td><td>the dependency config for the ECJ jar</td></tr><tr class="table-even"><td>grails.plugin.standalone. extraDependencies</td><td> <em class="italic">none</em> </td><td>extra dependency jars to include in the standalone jar</td></tr><tr class="table-odd"><td>grails.plugin.standalone. ivyLogLevel</td><td><code>warn</code></td><td>the Ivy log level</td></tr><tr class="table-even"><td>grails.plugin.standalone. jettyServletApiDependency</td><td>javax.servlet:servlet-api:2.5 or javax.servlet:javax.servlet-api:3.1.0</td><td>the Jetty servlet API jar dependency</td></tr><tr class="table-odd"><td>grails.plugin.standalone. jettyVersion</td><td><code>7.6.0.v20120127</code></td><td>the version of Jetty to use</td></tr><tr class="table-even"><td>grails.plugin.standalone. tomcatVersion</td><td><code>9.0.0.M4</code></td><td>the version of Tomcat to use</td></tr><tr class="table-odd"><td>grails.plugin.standalone. tomcatDependencies</td><td><code>&#91;'tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina', 'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util'&#93;</code></td><td>the Tomcat jars to use</td></tr><tr class="table-even"><td>grails.plugin.standalone. tomcatEmbedDependencies</td><td><code>&#91;'tomcat-embed-core', 'tomcat-embed-el', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j', 'tomcat-embed-websocket'&#93;</code></td><td>the Tomcat embed jars to use</td></tr><tr class="table-odd"><td>grails.plugin.standalone. mainClass</td><td><code>grails.plugin.</code> <code>standalone.JettyLauncher</code> or <code>grails.plugin.</code> <code>standalone.Launcher</code></td><td>Optionally specify a custom main class to include in the MANIFEST.MF. Note that you will then be required to call either grails.plugin.standalone. JettyLauncher or grails.plugin.standalone. Launcher yourself</td></tr></table><p class="paragraph"/><h3>Running the server</h3><p class="paragraph"/>As long as the target machine has Java 8 or higher available, all you need to do next is run<p class="paragraph"/><pre class="bq"><code>
+java &#45;jar /path/to/jar_name.jar</code></pre><p class="paragraph"/>There are several arguments you can pass to customize how the application runs, using <code>name=value</code> syntax:
+<ol>
+<li><code>context</code>, the context name; if not specified it defaults to "" (the "root" context)</li>
+<li><code>host</code>, the host name; if not specified it defaults to "localhost"</li>
+<li><code>port</code>, the HTTP port; if not specified it defaults to 8080</li>
+<li><code>httpsPort</code>, the HTTPS port; there is no default for this, but if specified you can also specify the keystore path and password</li>
+<li><code>keystorePath</code> or <code>javax.net.ssl.keyStore</code>, the SSL keystore path; if not specified a temporary keystore will be generated</li>
+<li><code>keystorePassword</code> or <code>javax.net.ssl.keyStorePassword</code>, the SSL keystore password; required if an existing keystore path is specified</li>
+<li><code>truststorePath</code> or <code>javax.net.ssl.trustStore</code>, the SSL truststore path</li>
+<li><code>trustStorePassword</code> or <code>javax.net.ssl.trustStorePassword</code>, the SSL truststore password; required if an existing truststore path is specified</li>
+<li><code>enableClientAuth</code>, whether to enable client auth, defaults to "want"; values can be one of (case-insensitive) 'true', 'yes', 'require', or 'required' for REQUIRED, 'optional' or 'want' for OPTIONAL, 'optionalNoCA' or 'optional_no_ca' for OPTIONAL_NO_CA, or 'false', 'no', or 'none' for NONE</li>
+<li><code>workDir</code>, the working directory where the war file is extracted, defaults to the system temp directory</li>
+<li><code>enableCompression</code>, whether to enable compression (Tomcat only)</li>
+<li><code>compressableMimeTypes</code>, a comma separated list of MIME types for which HTTP compression may be used; defaults to the Tomcat defaults, <code>"text/html,text/xml,text/plain"</code></li>
+<li><code>sessionTimeout</code>, the session timeout in minutes; defaults to 30</li>
+<li><code>nio</code> or <code>tomcat.nio</code>, whether to use NIO; defaults to true</li>
+<li><code>serverName</code>, a specific value to use as HTTP Server Header, by default tomcat will use Apache-Coyote/1.1 if none set at application level (Tomcat only)</li>
+<li><code>enableProxySupport</code>, enables support for X-Forwarded headers by adding a pre-configured RemoteIpValve, defaults to false (Tomcat only)</li>
+<li><code>certificateFile</code>, the path to the OpenSSL certificate file, no default</li>
+<li><code>certificateKeyFile</code>, the path to the OpenSSL certificate private key file, no default</li>
+<li><code>certificateKeyPassword</code>, the password for the OpenSSL certificate private key file, no default</li>
+</ol><p class="paragraph"/>In addition, if you specify a value that is the name of a system property (e.g. 'home.dir'), the system property value will be used.<p class="paragraph"/>For example running<p class="paragraph"/><pre class="bq"><code>
+java &#45;jar /path/to/jar_name.jar</code></pre><p class="paragraph"/>will start a server at <code>http://localhost:8080/</code> and<p class="paragraph"/><pre class="bq"><code>
+java &#45;jar /path/to/jar_name.jar context=cool_demo port=9000</code></pre><p class="paragraph"/>will start a server at <code>http://localhost:9000/cool_demo</code><p class="paragraph"/><pre class="bq"><code>
+java &#45;jar /path/to/jar_name.jar context=cool_demo port=8080 httpsPort=8443</code></pre><p class="paragraph"/>will start a server at <code>http://localhost:8080/cool_demo</code> and will also support SSL at <code>https://localhost:8443/cool_demo</code><p class="paragraph"/><h4>HTTP/2</h4><p class="paragraph"/>As of the 9.0.0.M4 release of the plugin it is possible to run your application with HTTP/2 enabled (only with Tomcat currently). You must use Java 8 or higher (this is a general requirement of Tomcat 9) and SSL, and because Java 8 does not support ALPN you must also use the Tomcat Native Library and APR. Much of this is configured in the plugin, but you will have to install the Tomcat Native Library binaries and add them to your LD_LIBRARY_PATH (or use a <code>-Djava.library.path</code> commandline arg) - see <a href="https://tomcat.apache.org/native-doc/index.html" target="blank">the documentation for more info</a>.<p class="paragraph"/>In addition to configuring the Tomcat Native Library, you must create an OpenSSL certificate and private key file. The keystore that is auto-generated for you when you specify <code>-https</code> and do not specify the location of your own cannot be used for HTTP/2. See <a href="https://www.openssl.org/" target="blank">the OpenSSL docs</a> for detailed information about the process. For local testing you should be able to create a self-signed certificate with<p class="paragraph"/><pre class="bq"><code>
+openssl req &#45;x509 &#45;newkey rsa:2048 &#45;keyout private&#45;key.pem &#45;out cert.pem &#45;days 365</code></pre><p class="paragraph"/>Then specify the paths to the certificate file and private key file, along with the password you used when generating them, as commandline args, e.g.<p class="paragraph"/>bc.
+java &#45;jar /path/to/jar_name.jar port=8080 httpsPort=8443 certificateKeyFile=/path/to/private&#45;key.pem certificateFile=/path/to/cert.pem certificateKeyPassword=&#8230;
+
+
+
+                <div style="clear:both;margin-top:15px;"></div>
+                
+                    <div class="toc-item prev-left"><a href="../guide/introduction.html">&lt;&lt; <strong>1</strong><span>Introduction to the Standalone Plugin</span></a></div>
+                
+                <div style="clear:both"></div>
+            </div>
+        </td>
+        <td id="col2">
+            <div class="local clearfix">
+                <div class="local-title">
+                    <a href="../guide/index.html" target="mainFrame">Quick Reference</a>
+                    <span class="toggle">(<a href="#" onclick="localToggle(); return false;">hide</a>)</span>
+                </div>
+                <div class="menu">
+                    
+                    <div class="menu-block"><h1 class="menu-title" onclick="toggleRef(this.parentNode.childNodes[1])">Scripts</h1><div class="menu-sub">
+                        
+                            
+                            <div class="menu-item"><a href="../ref/Scripts/build-standalone.html">build-standalone</a>
+                            </div>
+                            
+                            </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<div id="footer">
+    
+    
+</div>
+
+<script type="text/javascript" src="../js/docs.js"></script>
+
+</body>
+</html>
