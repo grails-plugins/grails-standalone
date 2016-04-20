@@ -125,20 +125,22 @@ public abstract class AbstractLauncher {
 
 	protected Map<String, String> argsToMap(String[] args) {
 		Map<String, String> map = new HashMap<String, String>();
-		for (String arg : args) {
-			int index = arg.indexOf('=');
-			if (index == -1) {
-				System.err.println("Warning, arguments must be specified in name=value format, ignoring argument '" + arg + "'");
-				continue;
-			}
-			String name = arg.substring(0, index).trim();
-			if (!SUPPORTED_ARGS.contains(name)) {
-				System.err.println("Warning, the specified argument '" + name + "' is not supported, ignoring");
-				continue;
-			}
+		if (args != null) {
+			for (String arg : args) {
+				int index = arg.indexOf('=');
+				if (index == -1) {
+					System.err.println("Warning, arguments must be specified in name=value format, ignoring argument '" + arg + "'");
+					continue;
+				}
+				String name = arg.substring(0, index).trim();
+				if (!SUPPORTED_ARGS.contains(name)) {
+					System.err.println("Warning, the specified argument '" + name + "' is not supported, ignoring");
+					continue;
+				}
 
-			String value = arg.substring(index + 1).trim();
-			map.put(name, value);
+				String value = arg.substring(index + 1).trim();
+				map.put(name, value);
+			}
 		}
 		return map;
 	}
