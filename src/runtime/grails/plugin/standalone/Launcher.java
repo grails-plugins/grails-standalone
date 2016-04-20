@@ -66,8 +66,8 @@ public class Launcher extends AbstractLauncher {
 	 *           <li>truststorePath or javax.net.ssl.trustStore, no default</li>
 	 *           <li>trustStorePassword or javax.net.ssl.trustStorePassword, no default</li>
 	 *           <li>enableCompression, defaults to true</li>
-	 *           <li>compressableMimeTypes defaults to ''</li>
-	 *           <li>enableClientAuth defaults to false</li>
+	 *           <li>compressableMimeTypes, defaults to ''</li>
+	 *           <li>enableClientAuth, defaults to 'want'</li>
 	 *           <li>sessionTimeout, defaults to 30 (minutes)</li>
 	 *           <li>nio or tomcat.nio, defaults to true</li>
 	 *           <li>serverName, a specific value to use as HTTP Server Header, no default</li>
@@ -132,7 +132,7 @@ public class Launcher extends AbstractLauncher {
 
 		boolean enableCompression = getBooleanArg("enableCompression", true);
 		String compressableMimeTypes = getArg("compressableMimeTypes", "");
-		boolean enableClientAuth = getBooleanArg("enableClientAuth", false);
+		String enableClientAuth = getArg("enableClientAuth", "want");
 		int sessionTimeout = getIntArg("sessionTimeout", 30);
 		String nio = getArg("nio", getArg("tomcat.nio"));
 		boolean useNio = nio == null || nio.equalsIgnoreCase("true");
@@ -155,7 +155,7 @@ public class Launcher extends AbstractLauncher {
 
 	protected void configureTomcat(File tomcatDir, String contextPath, File exploded,
 			String host, int port, int httpsPort, File keystoreFile, String keystorePassword,
-			boolean usingUserKeystore, boolean enableClientAuth,
+			boolean usingUserKeystore, String enableClientAuth,
 			String truststorePath, String trustStorePassword, Integer sessionTimeout,
 			boolean enableCompression, String compressableMimeTypes, boolean useNio,
 			String serverName, boolean enableProxySupport, String certificateFile,
@@ -241,7 +241,7 @@ public class Launcher extends AbstractLauncher {
 	}
 
 	protected void createSslConnector(int httpsPort, File keystoreFile, String keystorePassword,
-			String truststorePath, String trustStorePassword, String host, boolean enableClientAuth,
+			String truststorePath, String trustStorePassword, String host, String enableClientAuth,
 			String certificateFile, String certificateKeyFile, String certificateKeyPassword) {
 
 		Connector sslConnector;
@@ -277,9 +277,7 @@ public class Launcher extends AbstractLauncher {
 			}
 		}
 
-		if (enableClientAuth) {
-			sslConnector.setAttribute("clientAuth", true);
-		}
+		sslConnector.setAttribute("clientAuth", enableClientAuth);
 
 		if (!host.equals("localhost")) {
 			sslConnector.setAttribute("address", host);

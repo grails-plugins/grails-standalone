@@ -70,7 +70,7 @@ There are several arguments you can pass to customize how the application runs, 
 # @keystorePassword@ or @javax.net.ssl.keyStorePassword@, the SSL keystore password; required if an existing keystore path is specified
 # @truststorePath@ or @javax.net.ssl.trustStore@, the SSL truststore path
 # @trustStorePassword@ or @javax.net.ssl.trustStorePassword@, the SSL truststore password; required if an existing truststore path is specified
-# @enableClientAuth@, whether to enable client auth, defaults to false
+# @enableClientAuth@, whether to enable client auth, defaults to "want"; values can be one of (case-insensitive) 'true', 'yes', 'require', or 'required' for REQUIRED, 'optional' or 'want' for OPTIONAL, 'optionalNoCA' or 'optional_no_ca' for OPTIONAL_NO_CA, or 'false', 'no', or 'none' for NONE
 # @workDir@, the working directory where the war file is extracted, defaults to the system temp directory
 # @enableCompression@, whether to enable compression (Tomcat only)
 # @compressableMimeTypes@, a comma separated list of MIME types for which HTTP compression may be used; defaults to the Tomcat defaults, @"text/html,text/xml,text/plain"@
