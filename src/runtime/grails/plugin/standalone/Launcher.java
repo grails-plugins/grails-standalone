@@ -26,12 +26,14 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Server;
+import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.AprLifecycleListener;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.CrawlerSessionManagerValve;
 import org.apache.catalina.valves.RemoteIpValve;
+import org.apache.catalina.webresources.StandardRoot;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.coyote.http2.Http2Protocol;
 
@@ -165,6 +167,11 @@ public class Launcher extends AbstractLauncher {
 
 		tomcat.setBaseDir(tomcatDir.getPath());
 		context = tomcat.addWebapp(contextPath, exploded.getAbsolutePath());
+
+		WebResourceRoot resources = new StandardRoot(context);
+		resources.setCacheMaxSize(50 * 1024 * 1024);
+		context.setResources(resources);
+
 		tomcat.enableNaming();
 
 		if (useNio) {
