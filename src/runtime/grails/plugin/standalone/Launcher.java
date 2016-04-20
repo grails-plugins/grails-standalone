@@ -27,11 +27,13 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.Server;
 import org.apache.catalina.connector.Connector;
+import org.apache.catalina.core.AprLifecycleListener;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.CrawlerSessionManagerValve;
 import org.apache.catalina.valves.RemoteIpValve;
 import org.apache.coyote.http11.Http11NioProtocol;
+import org.apache.coyote.http2.Http2Protocol;
 
 /**
  * Main class; extracts the embedded war and starts Tomcat. Inlines some utility
@@ -70,6 +72,9 @@ public class Launcher extends AbstractLauncher {
 	 *           <li>nio or tomcat.nio, defaults to true</li>
 	 *           <li>serverName, a specific value to use as HTTP Server Header, no default</li>
 	 *           <li>enableProxySupport, enables support for X-Forwarded headers, defaults to false</li>
+	 *           <li>certificateFile, the path to the OpenSSL certificate file, no default</li>
+	 *           <li>certificateKeyFile, the path to the OpenSSL certificate private key file, no default</li>
+	 *           <li>certificateKeyPassword, the password for the OpenSSL certificate private key file, no default</li>
 	 *           </ul>
 	 *           In addition, if you specify a value that is the name of a system
 	 *           property (e.g. 'home.dir'), the system property value will be used.
@@ -102,6 +107,9 @@ public class Launcher extends AbstractLauncher {
 		int port = getIntArg("port", 8080);
 		int httpsPort = getIntArg("httpsPort", 0);
 
+		String certificateFile = getArg("certificateFile", "");
+		String certificateKeyFile = getArg("certificateKeyFile", "");
+		String certificateKeyPassword = getArg("certificateKeyPassword", "");
 		String keystorePath = getArg("keystorePath", getArg("javax.net.ssl.keyStore", ""));
 		String keystorePassword = getArg("keystorePassword", getArg("javax.net.ssl.keyStorePassword", ""));
 		String truststorePath = getArg("truststorePath", getArg("javax.net.ssl.trustStore", ""));
@@ -135,7 +143,8 @@ public class Launcher extends AbstractLauncher {
 				httpsPort, keystoreFile, keystorePassword, usingUserKeystore,
 				enableClientAuth, truststorePath, trustStorePassword,
 				sessionTimeout, enableCompression, compressableMimeTypes, useNio,
-				serverName, enableProxySupport);
+				serverName, enableProxySupport, certificateFile,
+				certificateKeyFile, certificateKeyPassword);
 
 		startKillSwitchThread(port);
 		addShutdownHook();
@@ -149,7 +158,8 @@ public class Launcher extends AbstractLauncher {
 			boolean usingUserKeystore, boolean enableClientAuth,
 			String truststorePath, String trustStorePassword, Integer sessionTimeout,
 			boolean enableCompression, String compressableMimeTypes, boolean useNio,
-			String serverName, boolean enableProxySupport) throws IOException, ServletException {
+			String serverName, boolean enableProxySupport, String certificateFile,
+			String certificateKeyFile, String certificateKeyPassword) throws IOException, ServletException {
 
 		tomcat.setPort(port);
 
@@ -191,7 +201,8 @@ public class Launcher extends AbstractLauncher {
 
 		if (httpsPort > 0) {
 			initSsl(keystoreFile, keystorePassword, usingUserKeystore);
-			createSslConnector(httpsPort, keystoreFile, keystorePassword, truststorePath, trustStorePassword, host, enableClientAuth);
+			createSslConnector(httpsPort, keystoreFile, keystorePassword, truststorePath, trustStorePassword, host,
+					enableClientAuth, certificateFile, certificateKeyFile, certificateKeyPassword);
 		}
 	}
 
@@ -230,7 +241,8 @@ public class Launcher extends AbstractLauncher {
 	}
 
 	protected void createSslConnector(int httpsPort, File keystoreFile, String keystorePassword,
-			String truststorePath, String trustStorePassword, String host, boolean enableClientAuth) {
+			String truststorePath, String trustStorePassword, String host, boolean enableClientAuth,
+			String certificateFile, String certificateKeyFile, String certificateKeyPassword) {
 
 		Connector sslConnector;
 		try {
@@ -246,13 +258,23 @@ public class Launcher extends AbstractLauncher {
 		sslConnector.setProperty("SSLEnabled", "true");
 		sslConnector.setURIEncoding("UTF-8");
 
-		sslConnector.setAttribute("keystoreFile", keystoreFile.getAbsolutePath());
-		sslConnector.setAttribute("keystorePass", keystorePassword);
+		if (hasLength(certificateKeyFile) && hasLength(certificateFile)) {
+			sslConnector.setAttribute("SSLHonorCipherOrder", false);
+			sslConnector.setAttribute("SSLCertificateKeyFile", certificateKeyFile);
+			sslConnector.setAttribute("SSLCertificateFile", certificateFile);
+			if (hasLength(certificateKeyPassword)) {
+				sslConnector.setAttribute("SSLPassword", certificateKeyPassword);
+			}
+		}
+		else {
+			sslConnector.setAttribute("keystoreFile", keystoreFile.getAbsolutePath());
+			sslConnector.setAttribute("keystorePass", keystorePassword);
 
-		if (hasLength(truststorePath)) {
-			sslConnector.setProperty("sslProtocol", "tls");
-			sslConnector.setAttribute("truststoreFile", new File(truststorePath).getAbsolutePath());
-			sslConnector.setAttribute("trustStorePassword", trustStorePassword);
+			if (hasLength(truststorePath)) {
+				sslConnector.setProperty("sslProtocol", "tls");
+				sslConnector.setAttribute("truststoreFile", new File(truststorePath).getAbsolutePath());
+				sslConnector.setAttribute("trustStorePassword", trustStorePassword);
+			}
 		}
 
 		if (enableClientAuth) {
@@ -262,6 +284,13 @@ public class Launcher extends AbstractLauncher {
 		if (!host.equals("localhost")) {
 			sslConnector.setAttribute("address", host);
 		}
+
+		sslConnector.addUpgradeProtocol(new Http2Protocol());
+
+		AprLifecycleListener aprLifecycleListener = new AprLifecycleListener();
+		aprLifecycleListener.setSSLEngine("on");
+		aprLifecycleListener.setUseAprConnector(true);
+		tomcat.getServer().addLifecycleListener(aprLifecycleListener);
 
 		tomcat.getService().addConnector(sslConnector);
 	}
