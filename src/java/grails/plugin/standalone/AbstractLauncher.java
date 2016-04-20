@@ -246,11 +246,18 @@ public abstract class AbstractLauncher {
 
 	protected Class<?> getKeyToolClass() throws ClassNotFoundException {
 		try {
-			return Class.forName("sun.security.tools.KeyTool");
+			// Sun JDK 8
+			return Class.forName("sun.security.tools.keytool.Main");
 		}
-		catch (ClassNotFoundException e) {
-			// no try/catch for this one, if neither is found let it fail
-			return Class.forName("com.ibm.crypto.tools.KeyTool");
+		catch (ClassNotFoundException e1) {
+			try {
+				// Sun pre-JDK 8
+				return Class.forName("sun.security.tools.KeyTool");
+			}
+			catch (ClassNotFoundException e2) {
+				// no try/catch for this one, if neither is found let it fail
+				return Class.forName("com.ibm.crypto.tools.KeyTool");
+			}
 		}
 	}
 
