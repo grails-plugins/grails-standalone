@@ -30,6 +30,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.CrawlerSessionManagerValve;
+import org.apache.catalina.valves.RemoteIpValve;
 import org.apache.coyote.http11.Http11NioProtocol;
 
 /**
@@ -40,7 +41,7 @@ import org.apache.coyote.http11.Http11NioProtocol;
  *
  * Also borrowed some code from https://github.com/jsimone/webapp-runner
  *
- * @author Burt Beckwith
+ * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
 public class Launcher extends AbstractLauncher {
 
@@ -81,9 +82,7 @@ public class Launcher extends AbstractLauncher {
 			launcher.start(exploded);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Error loading Tomcat: " + e.getMessage());
-			System.exit(1);
+			die(e, "Error loading Tomcat: " + e.getMessage());
 		}
 	}
 
@@ -209,8 +208,7 @@ public class Launcher extends AbstractLauncher {
 							tomcat.stop();
 						}
 						catch (LifecycleException e) {
-							System.err.println("Error stopping Tomcat: " + e.getMessage());
-							System.exit(1);
+							die(e, "Error stopping Tomcat: " + e.getMessage());
 						}
 					}
 					catch (IOException e) {
@@ -224,20 +222,10 @@ public class Launcher extends AbstractLauncher {
 	protected void startTomcat(String host, int port, String contextPath, Integer securePort) {
 		try {
 			tomcat.start();
-			String message = "Server running. Browse to http://" +
-					(host != null ? host : "localhost") +
-					":" + port + contextPath;
-			if (securePort != null) {
-				message += " or https://" +
-						(host != null ? host : "localhost") +
-						":" + securePort + contextPath;
-			}
-			System.out.println(message);
+			logStartMessage(host, port, securePort, contextPath);
 		}
 		catch (LifecycleException e) {
-			e.printStackTrace();
-			System.err.println("Error loading Tomcat: " + e.getMessage());
-			System.exit(1);
+			die(e, "Error loading Tomcat: " + e.getMessage());
 		}
 	}
 

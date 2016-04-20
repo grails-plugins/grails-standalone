@@ -16,6 +16,7 @@ package grails.plugin.standalone;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,18 +35,17 @@ import javax.servlet.ServletException;
 /**
  * Abstract base class for the Tomcat and Jetty launchers.
  *
- * @author Burt Beckwith
+ * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
 public abstract class AbstractLauncher {
 
 	protected static final int BUFFER_SIZE = 4096;
 
 	protected static final List<String> SUPPORTED_ARGS = Arrays.asList(
-			"context", "host", "port", "httpsPort", "keystorePath", "javax.net.ssl.keyStore",
-			"keystorePassword", "javax.net.ssl.keyStorePassword", "truststorePath", "javax.net.ssl.trustStore",
-			"trustStorePassword", "javax.net.ssl.trustStorePassword", "enableClientAuth", "workDir",
-			"enableCompression", "compressableMimeTypes", "sessionTimeout", "nio", "tomcat.nio",
-			"serverName", "enableProxySupport");
+		"compressableMimeTypes", "context", "enableClientAuth", "enableCompression", "enableProxySupport",
+		"host", "httpsPort", "javax.net.ssl.keyStore", "javax.net.ssl.keyStorePassword", "javax.net.ssl.trustStore",
+		"javax.net.ssl.trustStorePassword", "keystorePassword", "keystorePath", "nio", "port", "serverName",
+		"sessionTimeout", "tomcat.nio", "trustStorePassword", "truststorePath", "workDir");
 
 	protected Map<String, String> argsMap;
 
@@ -65,7 +65,7 @@ public abstract class AbstractLauncher {
 	}
 
 	protected File extractWar(File dir) throws IOException {
-		return extractWar(getClass().getClassLoader().getResourceAsStream("embedded.war"),
+		return extractWar(getResourceAsStream("embedded.war"),
 				File.createTempFile("embedded", ".war", dir).getAbsoluteFile());
 	}
 
@@ -112,8 +112,8 @@ public abstract class AbstractLauncher {
 			copy(inputStream, outputStream);
 		}
 		finally {
-			outputStream.close();
-			inputStream.close();
+			close(outputStream);
+			close(inputStream);
 		}
 	}
 
@@ -182,20 +182,18 @@ public abstract class AbstractLauncher {
 	}
 
 	// from org.springframework.util.FileCopyUtils.copy()
-	protected void copy(InputStream in, OutputStream out) throws IOException {
+	protected void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
 		try {
 			byte[] buffer = new byte[BUFFER_SIZE];
 			int bytesRead = -1;
-			while ((bytesRead = in.read(buffer)) != -1) {
-				out.write(buffer, 0, bytesRead);
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, bytesRead);
 			}
-			out.flush();
+			outputStream.flush();
 		}
 		finally {
-			try { in.close(); }
-			catch (IOException ignored) { /*ignored*/ }
-			try { out.close(); }
-			catch (IOException ignored) { /*ignored*/ }
+			close(inputStream);
+			close(outputStream);
 		}
 	}
 
@@ -274,18 +272,41 @@ public abstract class AbstractLauncher {
 		try {
 			getKeyToolClass().getMethod("main", String[].class).invoke(null, new Object[] { new String[] {
 					"-genkey",
-					"-alias", "localhost",
-					"-dname", "CN=localhost,OU=Test,O=Test,C=US",
-					"-keyalg", "RSA",
-					"-validity", "365",
+					"-alias",     "localhost",
+					"-dname",     "CN=localhost,OU=Test,O=Test,C=US",
+					"-keyalg",    "RSA",
+					"-validity",  "365",
 					"-storepass", "key",
-					"-keystore", keystoreFile.getAbsolutePath(),
-					"-storepass", keystorePassword,
-					"-keypass", keystorePassword}});
+					"-keystore",   keystoreFile.getAbsolutePath(),
+					"-storepass",  keystorePassword,
+					"-keypass",    keystorePassword}});
 			System.out.println("Created SSL Certificate.");
 		}
 		catch (Exception e) {
 			System.err.println("Unable to create an SSL certificate: " + e.getMessage());
 		}
+	}
+
+	protected void close(Closeable c) {
+		if (c == null) return;
+		try { c.close(); } catch (IOException ignored) {}
+	}
+
+	protected InputStream getResourceAsStream(String name) {
+		return getClass().getClassLoader().getResourceAsStream(name);
+	}
+
+	protected void logStartMessage(String host, int port, Integer securePort, String contextPath) {
+		String message = "Server running. Browse to http://" + (host != null ? host : "localhost") + ":" + port + contextPath;
+		if (securePort != null) {
+			message += " or https://" + (host != null ? host : "localhost") + ":" + securePort + contextPath;
+		}
+		System.out.println(message);
+	}
+
+	protected static void die(Throwable t, String message) {
+		t.printStackTrace();
+		System.err.println(message);
+		System.exit(1);
 	}
 }

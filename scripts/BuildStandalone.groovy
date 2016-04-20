@@ -31,8 +31,9 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 	depends configureProxy, compile, loadPlugins
 
 	try {
-		if ('development'.equals(grailsEnv) && !argsMap.warfile) {
-			event 'StatusUpdate', ["You're running in the development environment but haven't specified a war file, so one will be built with development settings."]
+		if (grailsEnv == 'development' && !argsMap.warfile) {
+			event 'StatusUpdate', ["You're running in the development environment but haven't specified " +
+			                       "a war file, so one will be built with development settings."]
 		}
 
 		File workDir = new File(grailsSettings.projectTargetDir, 'standalone-temp-' + System.currentTimeMillis()).absoluteFile
@@ -79,8 +80,7 @@ target(buildStandalone: 'Build a standalone app with embedded server') {
 		event 'StatusUpdate', ["Built $jar.path"]
 	}
 	catch (e) {
-		GrailsUtil.deepSanitize e
-		throw e
+		throw GrailsUtil.deepSanitize(e)
 	}
 }
 
@@ -145,13 +145,13 @@ removeTomcatJarsFromWar = { File workDir, File warfile ->
 	def expandedDir = new File(workDir, 'expanded').absoluteFile
 	ant.unzip src: warfile, dest: expandedDir
 	for (file in new File(expandedDir, 'WEB-INF/lib').listFiles()) {
-		if (file.name.startsWith('tomcat-') && !file.name.contains('pool') && !file.name.contains('jdbc') && !file.name.contains('embed-logging')) {
-			file.delete()
+		if (file.name.startsWith('tomcat-') && !['embed-logging', 'jdbc', 'pool'].any { file.name.contains it }) {
+			assert file.delete()
 		}
 	}
-	warfile.delete()
+	assert warfile.delete()
 	ant.zip basedir: expandedDir, destfile: warfile
-	expandedDir.deleteDir()
+	assert expandedDir.deleteDir()
 }
 
 resolveJars = { boolean jetty, standaloneConfig ->
@@ -198,13 +198,13 @@ resolveJars = { boolean jetty, standaloneConfig ->
 }
 
 String resolveMainClass(boolean jetty) {
-	buildSettings.config.grails.plugin.standalone.mainClass ?: (jetty ? 'grails.plugin.standalone.JettyLauncher' : 'grails.plugin.standalone.Launcher')
+	buildSettings.config.grails.plugin.standalone.mainClass ?: 'grails.plugin.standalone.' + (jetty ? 'JettyLauncher' : 'Launcher')
 }
 
 calculateJettyDependencies = { standaloneConfig ->
 	String servletVersion = buildSettings.servletVersion
 	String servletApiDep = standaloneConfig.jettyServletApiDependency ?:
-		servletVersion.startsWith('3') ? 'javax.servlet:javax.servlet-api:3.1.0' : 'javax.servlet:servlet-api:' + servletVersion
+		'javax.servlet:' + (servletVersion.startsWith('3') ? 'javax.servlet-api:3.1.0' : 'servlet-api:' + servletVersion)
 	String jettyVersion = standaloneConfig.jettyVersion ?: '7.6.0.v20120127'
 	['org.eclipse.jetty.aggregate:jetty-all:' + jettyVersion, servletApiDep]
 }

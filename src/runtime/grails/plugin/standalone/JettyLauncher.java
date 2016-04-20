@@ -40,7 +40,7 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
  * org.grails.jetty.JettyServer and org.grails.jetty.JettyServerFactory, and
  * also borrows some code from standalone.Start from the jetty-standalone plugin.
  *
- * @author Burt Beckwith
+ * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
 public class JettyLauncher extends AbstractLauncher {
 
@@ -120,23 +120,13 @@ public class JettyLauncher extends AbstractLauncher {
 	protected void startJetty(Server server, String host, int port, String contextPath, Integer securePort) {
 		try {
 			server.start();
-			String message = "Server running. Browse to http://" +
-					(host != null ? host : "localhost") +
-					":" + port + contextPath;
-			if (securePort != null) {
-				message += " or https://" +
-						(host != null ? host : "localhost") +
-						":" + securePort + contextPath;
-			}
-			System.out.println(message);
+			logStartMessage(host, port, securePort, contextPath);
 //			System.in.read();
 //			server.stop();
 //			server.join();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Error loading Jetty: " + e.getMessage());
-			System.exit(1);
+			die(e, "Error loading Jetty: " + e.getMessage());
 		}
 	}
 
@@ -209,6 +199,7 @@ public class JettyLauncher extends AbstractLauncher {
 		return server;
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void createSslConnector(Server server, int httpsPort, String serverHost, File keystoreFile, String keystorePassword) {
 
 		SslSocketConnector secureListener = new SslSocketConnector();
