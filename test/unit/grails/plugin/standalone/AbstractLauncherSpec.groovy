@@ -1,4 +1,4 @@
-/* Copyright 2011-2015 the original author or authors.
+/* Copyright 2011-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import spock.lang.Specification
  *
  * @author <a href='mailto:burt@burtbeckwith.com'>Burt Beckwith</a>
  */
+@SuppressWarnings('unused')
 class AbstractLauncherSpec extends Specification {
 
 	private AbstractLauncher launcher = createLauncher([])
