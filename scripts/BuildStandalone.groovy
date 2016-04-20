@@ -102,9 +102,18 @@ buildJar = { File workDir, File jar, boolean jetty, File warfile = null ->
 
 	ant.path(id: 'standalone.cp') { dependencyJars.each { pathelement(path: it) } }
 
-	// compile Launcher.java so it's directly in the JAR
-	ant.javac(destdir: workDir, debug: true, source: '1.5', target: '1.5', listfiles: true,
-	          classpathref: 'standalone.cp', includeAntRuntime: false) {
+	// compile the launcher so it's directly in the JAR
+
+	// Ant 1.8 (used in Grails versions before 2.5.1) isn't compatible with Java8, so set the compiler based on the version of Java
+	ant.antversion(property: 'antversion')
+	BigDecimal antVersion = new BigDecimal(ant.antProject.properties.antversion[0..2])
+	BigDecimal javaVersion = new BigDecimal(System.getProperty('java.version')[0..2])
+	if (antVersion.compareTo(new BigDecimal('1.9')) == -1) {
+		 javaVersion = javaVersion.min(new BigDecimal('1.7'))
+	}
+
+	ant.javac(destdir: workDir, compiler: 'javac' + javaVersion, source: '1.5', target: '1.5',
+	          debug: true, listfiles: true, classpathref: 'standalone.cp', includeAntRuntime: false) {
 		src(path: new File(standalonePluginDir, 'src/java').path)
 		src(path: new File(standalonePluginDir, 'src/runtime').path)
 		include(name: 'grails/plugin/standalone/AbstractLauncher.java')
