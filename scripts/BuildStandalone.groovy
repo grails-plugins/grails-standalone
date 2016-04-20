@@ -220,7 +220,7 @@ calculateJettyDependencies = { standaloneConfig ->
 
 calculateTomcatDependencies = { standaloneConfig ->
 
-	String tomcatVersion = standaloneConfig.tomcatVersion ?: '8.0.33'
+	String tomcatVersion = standaloneConfig.tomcatVersion ?: '9.0.0.M4'
 
 	def deps = []
 

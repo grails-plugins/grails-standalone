@@ -274,7 +274,7 @@ public abstract class AbstractLauncher {
 		try {
 			getKeyToolClass().getMethod("main", String[].class).invoke(null, new Object[] { new String[] {
 					"-genkey",
-					"-alias",     "localhost",
+					"-alias",     "tomcat",
 					"-dname",     "CN=localhost,OU=Test,O=Test,C=US",
 					"-keyalg",    "RSA",
 					"-validity",  "365",

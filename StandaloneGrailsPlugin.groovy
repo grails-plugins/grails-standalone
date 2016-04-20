@@ -14,7 +14,7 @@
  */
 class StandaloneGrailsPlugin {
 	String version = '8.0.33'
-	String grailsVersion = '2.3.0 > *'
+	String grailsVersion = '2.5.0 > *'
 	def scopes = [excludes: 'war']
 	def pluginExcludes = ['src/docs/**']
 	String author = 'Burt Beckwith'
