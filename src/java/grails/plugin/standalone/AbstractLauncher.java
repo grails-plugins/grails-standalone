@@ -42,8 +42,9 @@ public abstract class AbstractLauncher {
 	protected static final int BUFFER_SIZE = 4096;
 
 	protected static final List<String> SUPPORTED_ARGS = Arrays.asList(
-		"compressableMimeTypes", "context", "enableClientAuth", "enableCompression", "enableProxySupport",
-		"host", "httpsPort", "javax.net.ssl.keyStore", "javax.net.ssl.keyStorePassword", "javax.net.ssl.trustStore",
+		"certificateFile", "certificateKeyFile", "certificateKeyPassword", "compressableMimeTypes",
+		"context", "enableClientAuth", "enableCompression", "enableProxySupport", "host", "httpsPort",
+		"javax.net.ssl.keyStore", "javax.net.ssl.keyStorePassword", "javax.net.ssl.trustStore",
 		"javax.net.ssl.trustStorePassword", "keystorePassword", "keystorePath", "nio", "port", "serverName",
 		"sessionTimeout", "tomcat.nio", "trustStorePassword", "truststorePath", "workDir");
 
