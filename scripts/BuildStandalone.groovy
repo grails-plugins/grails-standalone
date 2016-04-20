@@ -165,7 +165,7 @@ removeTomcatJarsFromWar = { File workDir, File warfile ->
 
 resolveJars = { boolean jetty, standaloneConfig ->
 
-	def deps = [standaloneConfig.ecjDependency ?: 'org.eclipse.jdt.core.compiler:ecj:4.4']
+	def deps = [standaloneConfig.ecjDependency ?: 'org.eclipse.jdt.core.compiler:ecj:4.5.1']
 
 	if (jetty) {
 		deps.addAll calculateJettyDependencies(standaloneConfig)
@@ -220,7 +220,7 @@ calculateJettyDependencies = { standaloneConfig ->
 
 calculateTomcatDependencies = { standaloneConfig ->
 
-	String tomcatVersion = standaloneConfig.tomcatVersion ?: '8.0.15'
+	String tomcatVersion = standaloneConfig.tomcatVersion ?: '8.0.33'
 
 	def deps = []
 
