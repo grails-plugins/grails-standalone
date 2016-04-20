@@ -2,39 +2,33 @@ h3. Building the jar
 
 The first step is to run the [build-standalone|Scripts] script, e.g.
 
-{code:java}
-grails prod build-standalone
-{code}
+bc.
+grails prod build\-standalone
 
 or
 
-{code:java}
-grails -Dgrails.env=demo build-standalone our_cool_demo.jar
-{code}
+bc.
+grails \-Dgrails.env=demo build\-standalone our_cool_demo.jar
 
 If you pass the \-\-jetty flag the embedded server will be Jetty instead of the default Tomcat, for example
 
-{code:java}
-grails prod build-standalone --jetty
-{code}
+bc.
+grails prod build\-standalone \-\-jetty
 
 or
 
-{code:java}
-grails -Dgrails.env=demo build-standalone our_cool_demo.jar --jetty
-{code}
+bc.
+grails \-Dgrails.env=demo build\-standalone our_cool_demo.jar \-\-jetty
 
 You can change the default embedded server to Jetty by adding this to BuildConfig.groovy:
 
-{code}
+bc.
 grails.plugin.standalone.useJetty = true
-{code}
 
 If you've set Jetty to the default, you can force a Tomcat build later with the \-\-tomcat flag:
 
-{code}
-grails build-standalone --tomcat
-{code}
+bc.
+grails build\-standalone \-\-tomcat
 
 h4. Build Configuration
 
@@ -42,24 +36,23 @@ There are several configuration settings that you can use to change how the jar 
 
 {table}
 *Property* | *Default Value* | *Meaning*
-grails.plugin.standalone. ecjDependency | 'org.eclipse.jdt.core.compiler:ecj:4.5.1' | the dependency config for the ECJ jar
-grails.plugin.standalone. extraDependencies | none | extra dependency jars to include in the standalone jar
-grails.plugin.standalone. ivyLogLevel | 'warn' | the Ivy log level
-grails.plugin.standalone. jettyServletApiDependency | 'javax.servlet:servlet-api:2.5' or 'javax.servlet:javax.servlet-api:3.1.0' | the Jetty servlet API jar dependency
-grails.plugin.standalone. jettyVersion | '7.6.0.v20120127' | the version of Jetty to use
-grails.plugin.standalone. tomcatVersion | '9.0.0.M4' | the version of Tomcat to use
-grails.plugin.standalone. tomcatDependencies | 'tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina', 'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util' | the Tomcat jars to use
-grails.plugin.standalone. tomcatEmbedDependencies | 'tomcat-embed-core', 'tomcat-embed-el', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j', 'tomcat-embed-websocket' | the Tomcat embed jars to use
-grails.plugin.standalone. mainClass | 'grails.plugin.standalone. JettyLauncher' or 'grails.plugin.standalone. Launcher' | Optionally specify a custom main class to include in the MANIFEST.MF. Note that you will then be required to call either grails.plugin.standalone. JettyLauncher or grails.plugin.standalone. Launcher yourself
+grails.plugin.standalone. ecjDependency | org.eclipse.jdt.core.compiler:ecj:4.5.1 | the dependency config for the ECJ jar
+grails.plugin.standalone. extraDependencies | _none_ | extra dependency jars to include in the standalone jar
+grails.plugin.standalone. ivyLogLevel | @warn@ | the Ivy log level
+grails.plugin.standalone. jettyServletApiDependency | javax.servlet:servlet-api:2.5 or javax.servlet:javax.servlet-api:3.1.0 | the Jetty servlet API jar dependency
+grails.plugin.standalone. jettyVersion | @7.6.0.v20120127@ | the version of Jetty to use
+grails.plugin.standalone. tomcatVersion | @9.0.0.M4@ | the version of Tomcat to use
+grails.plugin.standalone. tomcatDependencies | @\['tomcat-annotations-api', 'tomcat-api', 'tomcat-catalina-ant', 'tomcat-catalina', 'tomcat-coyote', 'tomcat-juli', 'tomcat-servlet-api', 'tomcat-util'\]@ | the Tomcat jars to use
+grails.plugin.standalone. tomcatEmbedDependencies | @\['tomcat-embed-core', 'tomcat-embed-el', 'tomcat-embed-jasper', 'tomcat-embed-logging-juli', 'tomcat-embed-logging-log4j', 'tomcat-embed-websocket'\]@ | the Tomcat embed jars to use
+grails.plugin.standalone. mainClass | @grails.plugin.@ @standalone.JettyLauncher@ or @grails.plugin.@ @standalone.Launcher@ | Optionally specify a custom main class to include in the MANIFEST.MF. Note that you will then be required to call either grails.plugin.standalone. JettyLauncher or grails.plugin.standalone. Launcher yourself
 {table}
 
 h3. Running the server
 
-As long as the target machine has Java 5 or higher available, all you need to do next is run
+As long as the target machine has Java 8 or higher available, all you need to do next is run
 
-{code:java}
-java -jar /path/to/jar_name.jar
-{code}
+bc.
+java \-jar /path/to/jar_name.jar
 
 There are several arguments you can pass to customize how the application runs, using @name=value@ syntax:
 # @context@, the context name; if not specified it defaults to "" (the "root" context)
@@ -86,20 +79,31 @@ In addition, if you specify a value that is the name of a system property (e.g. 
 
 For example running
 
-{code:java}
-java -jar /path/to/jar_name.jar
-{code}
+bc.
+java \-jar /path/to/jar_name.jar
 
 will start a server at @http://localhost:8080/@ and
 
-{code:java}
-java -jar /path/to/jar_name.jar context=cool_demo port=9000
-{code}
+bc.
+java \-jar /path/to/jar_name.jar context=cool_demo port=9000
 
 will start a server at @http://localhost:9000/cool_demo@
 
-{code:java}
-java -jar /path/to/jar_name.jar context=cool_demo port=8080 httpsPort=8443
-{code}
+bc.
+java \-jar /path/to/jar_name.jar context=cool_demo port=8080 httpsPort=8443
 
 will start a server at @http://localhost:8080/cool_demo@ and will also support SSL at @https://localhost:8443/cool_demo@
+
+h4. HTTP/2
+
+As of the 9.0.0.M4 release of the plugin it is possible to run your application with HTTP/2 enabled (only with Tomcat currently). You must use Java 8 or higher (this is a general requirement of Tomcat 9) and SSL, and because Java 8 does not support ALPN you must also use the Tomcat Native Library and APR. Much of this is configured in the plugin, but you will have to install the Tomcat Native Library binaries and add them to your LD_LIBRARY_PATH (or use a @-Djava.library.path@ commandline arg) - see [the documentation for more info|https://tomcat.apache.org/native-doc/index.html].
+
+In addition to configuring the Tomcat Native Library, you must create an OpenSSL certificate and private key file. The keystore that is auto-generated for you when you specify @-https@ and do not specify the location of your own cannot be used for HTTP/2. See [the OpenSSL docs|https://www.openssl.org/] for detailed information about the process. For local testing you should be able to create a self-signed certificate with
+
+bc.
+openssl req \-x509 \-newkey rsa:2048 \-keyout private\-key.pem \-out cert.pem \-days 365
+
+Then specify the paths to the certificate file and private key file, along with the password you used when generating them, as commandline args, e.g.
+
+bc.
+java \-jar /path/to/jar_name.jar port=8080 httpsPort=8443 certificateKeyFile=/path/to/private\-key.pem certificateFile=/path/to/cert.pem certificateKeyPassword=...
